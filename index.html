@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +11,7 @@
     html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text-primary); height: 100%; width: 100%; overflow: hidden; position: fixed; }
     .app { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
 
+    /* Splash & onboarding */
     #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; animation: splashOut 0.4s ease 2.6s forwards; text-align: center; color: white; }
     @keyframes splashOut { from { opacity: 1; } to { opacity: 0; pointer-events: none; } }
     .splash-logo { width: 80px; height: 80px; margin: 0 auto 20px; animation: logoIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -33,16 +33,19 @@
     .onboard-text p { margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
     .onboard-footer { padding: 20px; border-top: 1px solid var(--border); }
 
+    /* Header */
     header { padding: 12px 16px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; min-height: 56px; }
     header h1 { margin: 0; font-size: 18px; font-weight: 600; }
     .header-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
     .header-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; }
 
+    /* Screens */
     .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; }
     .screen.active { display: flex; }
     main { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
     #home-screen main { padding-bottom: 140px; }
 
+    /* Folder grid */
     .search-box { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--surface); }
     .folders-header { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
     .folders-header h3 { margin: 0; font-size: 14px; font-weight: 600; }
@@ -56,17 +59,17 @@
     .folder-icon svg { width: 100%; height: 100%; stroke: var(--primary); fill: none; stroke-width: 1.5; }
     .folder-name { font-size: 12px; font-weight: 500; }
     .folder-count { font-size: 10px; color: var(--text-secondary); }
-    .folder-menu { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
-    .folder-menu svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
 
+    /* Scan hero */
     .scan-hero { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 50; }
     .big-scan-btn { width: 90px; height: 90px; border-radius: 50%; background: var(--primary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(0,102,255,0.4); padding: 0; }
     .big-scan-btn:active { transform: scale(0.92); }
     .big-scan-btn svg { width: 44px; height: 44px; stroke: white; fill: none; stroke-width: 1.5; }
     .scan-text { font-size: 12px; font-weight: 500; color: var(--text-primary); }
 
-    .docs-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 100px; }
-    .doc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; gap: 12px; cursor: pointer; align-items: center; }
+    /* Docs list & cards */
+    .docs-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 160px; } /* extra space for popover actions */
+    .doc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; gap: 12px; cursor: pointer; align-items: center; position: relative; }
     .doc-card.selected { background: #f0f5ff; border-color: var(--primary); }
     .doc-checkbox { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; color: white; }
     .doc-card.selected .doc-checkbox { background: var(--primary); border-color: var(--primary); }
@@ -75,10 +78,26 @@
     .doc-info { flex: 1; }
     .doc-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
     .doc-meta { font-size: 12px; color: var(--text-secondary); }
-    .doc-actions { display: flex; gap: 8px; margin-left: auto; }
-    .action-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+
+    /* action strip that appears under the card (hidden by default) */
+    .doc-actions { display: none; gap: 8px; margin-left: 12px; }
+    .doc-card.show-actions .doc-actions {
+      display: flex;
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: -56px;
+      background: var(--surface);
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      align-items: center;
+      justify-content: space-between;
+    }
+    .action-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
     .action-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
 
+    /* Camera & preview */
     #camera-screen main { padding: 0; background: #000; padding-bottom: 120px; }
     #camera-feed { width: 100%; flex: 1; object-fit: cover; background: #000; }
     .camera-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 80px; height: 80px; border-radius: 50%; background: var(--primary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 50; padding: 0; }
@@ -88,22 +107,68 @@
     .loading-spinner { width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* Preview */
     #preview-screen main { padding: 0; background: #000; display: flex; align-items: center; justify-content: center; padding-bottom: 80px; }
     #preview-canvas { width: 100%; max-height: 100%; object-fit: contain; background: #000; }
-    #filter-screen main { padding: 0; background: #000; display: flex; flex-direction: column; padding-bottom: 80px; }
-    #filter-image { flex: 1; width: 100%; height: 100%; object-fit: contain; background: #000; }
-    .filter-buttons { background: rgba(0,0,0,0.9); padding: 12px 16px; display: flex; gap: 8px; overflow-x: auto; }
-    .filter-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap; flex-shrink: 0; }
-    .filter-btn:active { background: var(--primary); border-color: var(--primary); }
 
-    #review-screen main { padding: 0; background: #000; display: flex; flex-direction: column; padding-bottom: 80px; }
+    /* Filter/Enhance screen:
+       toolbar overlay (top-right) and image-name (top-left) so filters are visible over the image */
+    #filter-screen { position: relative; }
+    #filter-screen main { padding: 0; background: #000; display: flex; flex-direction: column; padding-bottom: 80px; position: relative; }
+    #filter-image { flex: 1; width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
+    .filter-toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 60;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      background: rgba(0,0,0,0.45);
+      padding: 8px;
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
+    }
+    .filter-toolbar .filter-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    .image-name {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 60;
+      background: rgba(0,0,0,0.45);
+      padding: 6px 10px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .image-name input {
+      background: transparent; border: none; outline: none; color: white; min-width: 140px; font-weight: 600;
+    }
+
+    /* Review screen:
+       thumbs are absolute and above footer so they're not covered */
+    #review-screen { position: relative; }
+    #review-screen main { padding: 0; background: #000; display: flex; flex-direction: column; padding-bottom: 120px; position: relative; }
     .review-image { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; }
     .review-image img { max-width: 100%; max-height: 100%; object-fit: contain; }
-    .review-thumbs { background: rgba(0,0,0,0.8); padding: 12px 16px; overflow-x: auto; display: flex; gap: 8px; }
+    .review-thumbs {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 72px; /* above footer */
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      justify-content: center;
+      z-index: 70;
+      background: rgba(0,0,0,0.12);
+    }
     .review-thumb { width: 60px; height: 80px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.2); overflow: hidden; flex-shrink: 0; cursor: pointer; }
     .review-thumb.active { border-color: var(--primary); }
     .review-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
+    /* Buttons & footer */
     .btn { padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-primary); font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
     .btn:active { opacity: 0.8; }
     .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
@@ -118,17 +183,52 @@
     .empty svg { width: 48px; height: 48px; stroke: var(--text-secondary); fill: none; stroke-width: 1.5; margin-bottom: 12px; opacity: 0.5; }
 
     #document-screen main { padding-bottom: 100px; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+
+    /* small responsive tweak */
+    @media (max-width: 420px) {
+      .folders-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
   <div class="app">
 
+    <!-- ICON SPRITE (standardized symbols) -->
+    <svg style="display:none" aria-hidden="true">
+      <symbol id="icon-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></symbol>
+
+      <symbol id="icon-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
+
+      <symbol id="icon-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></symbol>
+
+      <symbol id="icon-spyglass" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"></circle><path d="M21 21l-4.35-4.35"></path></symbol>
+
+      <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></symbol>
+
+      <symbol id="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></symbol>
+
+      <symbol id="icon-parameters" viewBox="0 0 24 24">
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09c.66 0 1.23-.4 1.51-1a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 0 1 6.5 2.5l.06.06c.5.5 1.07.73 1.82.33.5-.28 1.23-.28 1.82.33L11 4.5c.4.4.73.9.33 1.82-.28.66-.28 1.23 0 1.51V7a2 2 0 1 1 4 0v.09c.66 0 1.23.4 1.51 1 .4.9.9 1.4 1.82.33l.06-.06A2 2 0 0 1 21.5 8.5l-.06.06c-.5.5-.73 1.07-.33 1.82.28.5.28 1.23-.33 1.82L19.4 15z"/>
+      </symbol>
+
+      <symbol id="icon-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
+
+      <symbol id="icon-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"></path></symbol>
+
+      <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></symbol>
+
+      <symbol id="icon-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
+
+      <symbol id="icon-pencil" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
+
+      <symbol id="icon-move" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H9m4-12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4a2 2 0 0 0 2-2V4"></path></symbol>
+
+      <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></symbol>
+    </svg>
+
     <!-- SPLASH -->
     <div id="splash">
-      <svg class="splash-logo" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-        <polyline points="14 2 14 8 20 8"></polyline>
-      </svg>
+      <svg class="splash-logo"><use href="#icon-doc"></use></svg>
       <h1 class="splash-title">PaperClear</h1>
       <p class="splash-subtitle">Scan documents offline, locally, privately</p>
     </div>
@@ -137,47 +237,35 @@
     <section id="onboarding">
       <div class="onboard-header">
         <h2>Quick Start Guide</h2>
-        <button class="onboard-close" id="onboard-close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
+        <button class="onboard-close" id="onboard-close" aria-label="Close onboarding">
+          <svg><use href="#icon-close"></use></svg>
         </button>
       </div>
       <div class="onboard-steps">
         <div class="onboard-step">
           <div class="onboard-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
+            <svg><use href="#icon-camera"></use></svg>
           </div>
           <div class="onboard-text">
             <h3>1. Capture</h3>
             <p>Tap the big blue button to capture a document page with your camera</p>
           </div>
         </div>
+
+        <!-- ENHANCE icon replaced with spyglass -->
         <div class="onboard-step">
           <div class="onboard-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M4 19a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2"></path>
-              <path d="M7 12h3v5H7z"></path>
-              <path d="M14 12h3v5h-3z"></path>
-              <path d="M12 3v6m0 2v2"></path>
-              <path d="M8 5h8"></path>
-            </svg>
+            <svg><use href="#icon-spyglass"></use></svg>
           </div>
           <div class="onboard-text">
             <h3>2. Enhance</h3>
             <p>Choose a filter: Clean, B&W, or Sharp to improve scan quality</p>
           </div>
         </div>
+
         <div class="onboard-step">
           <div class="onboard-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
+            <svg><use href="#icon-eye"></use></svg>
           </div>
           <div class="onboard-text">
             <h3>3. Review</h3>
@@ -186,11 +274,7 @@
         </div>
         <div class="onboard-step">
           <div class="onboard-icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
+            <svg><use href="#icon-download"></use></svg>
           </div>
           <div class="onboard-text">
             <h3>4. Save & Export</h3>
@@ -207,32 +291,24 @@
     <section id="home-screen" class="screen active">
       <header>
         <h1>PaperClear</h1>
-        <button class="header-btn" id="settings-btn">
-          <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6m-1.78-7.78l-4.24 4.24M7.46 16.54l-4.24 4.24"></path>
-          </svg>
+        <button class="header-btn" id="settings-btn" aria-label="Settings">
+          <!-- SETTINGS icon changed to parameters -->
+          <svg><use href="#icon-parameters"></use></svg>
         </button>
       </header>
       <main>
         <input type="search" class="search-box" id="search" placeholder="Search documents..." />
         <div class="folders-header">
           <h3>Folders</h3>
-          <button class="add-folder-btn" id="add-folder-btn">
-            <svg viewBox="0 0 24 24">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+          <button class="add-folder-btn" id="add-folder-btn" aria-label="Add folder">
+            <svg><use href="#icon-plus"></use></svg>
           </button>
         </div>
         <div class="folders-grid" id="folders"></div>
       </main>
       <div class="scan-hero">
-        <button class="big-scan-btn" id="scan-btn">
-          <svg viewBox="0 0 24 24">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-            <circle cx="12" cy="13" r="4"></circle>
-          </svg>
+        <button class="big-scan-btn" id="scan-btn" aria-label="Scan">
+          <svg><use href="#icon-camera"></use></svg>
         </button>
         <span class="scan-text">Tap to Scan</span>
       </div>
@@ -240,28 +316,32 @@
 
     <!-- FOLDER -->
     <section id="folder-screen" class="screen">
-      <header>
-        <button class="header-btn" id="folder-back">
-          <svg viewBox="0 0 24 24">
-            <path d="M19 12H5M12 19l-7-7 7-7"></path>
-          </svg>
+      <header style="align-items:center;">
+        <button class="header-btn" id="folder-back" aria-label="Back">
+          <svg><use href="#icon-back"></use></svg>
         </button>
-        <h1 id="folder-title">Folder</h1>
-        <button class="header-btn" style="visibility: hidden;"></button>
+        <h1 id="folder-title" style="flex:1; text-align:center;">Folder</h1>
+
+        <!-- New header action buttons: rename (pencil) + delete (red) -->
+        <div style="display:flex; gap:8px;">
+          <button class="header-btn" id="folder-rename" title="Rename folder" aria-label="Rename folder">
+            <svg><use href="#icon-pencil"></use></svg>
+          </button>
+          <button class="header-btn" id="folder-delete" title="Delete folder" aria-label="Delete folder" style="background: rgba(217,45,32,0.95);">
+            <svg><use href="#icon-trash"></use></svg>
+          </button>
+        </div>
       </header>
       <main>
         <div class="docs-list" id="docs"></div>
         <div class="empty" id="folder-empty" style="display: none;">
-          <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          <svg><use href="#icon-folder"></use></svg>
           <p>No documents yet</p>
         </div>
       </main>
       <div class="footer full">
         <button class="btn btn-primary" id="scan-folder-btn">
-          <svg viewBox="0 0 24 24">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-            <circle cx="12" cy="13" r="4"></circle>
-          </svg>
+          <svg><use href="#icon-camera"></use></svg>
           Scan
         </button>
       </div>
@@ -271,9 +351,7 @@
     <section id="camera-screen" class="screen">
       <header>
         <button class="header-btn" id="camera-back">
-          <svg viewBox="0 0 24 24">
-            <path d="M19 12H5M12 19l-7-7 7-7"></path>
-          </svg>
+          <svg><use href="#icon-back"></use></svg>
         </button>
         <h1>Capture</h1>
         <button class="header-btn" style="visibility: hidden;"></button>
@@ -284,11 +362,8 @@
           <p>Accessing camera...</p>
         </div>
         <video id="camera-feed" autoplay muted playsinline webkit-playsinline></video>
-        <button class="camera-btn" id="capture-btn">
-          <svg viewBox="0 0 24 24">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-            <circle cx="12" cy="13" r="4"></circle>
-          </svg>
+        <button class="camera-btn" id="capture-btn" aria-label="Capture">
+          <svg><use href="#icon-camera"></use></svg>
         </button>
       </main>
     </section>
@@ -297,9 +372,7 @@
     <section id="preview-screen" class="screen">
       <header>
         <button class="header-btn" id="preview-back">
-          <svg viewBox="0 0 24 24">
-            <path d="M19 12H5M12 19l-7-7 7-7"></path>
-          </svg>
+          <svg><use href="#icon-back"></use></svg>
         </button>
         <h1>Preview</h1>
         <button class="header-btn" style="visibility: hidden;"></button>
@@ -312,24 +385,31 @@
       </div>
     </section>
 
-    <!-- FILTER -->
+    <!-- FILTER / ENHANCE -->
     <section id="filter-screen" class="screen">
       <header>
         <button class="header-btn" id="filter-back">
-          <svg viewBox="0 0 24 24">
-            <path d="M19 12H5M12 19l-7-7 7-7"></path>
-          </svg>
+          <svg><use href="#icon-back"></use></svg>
         </button>
         <h1>Enhance</h1>
         <button class="header-btn" style="visibility: hidden;"></button>
       </header>
       <main>
         <img id="filter-image" alt="preview" />
-        <div class="filter-buttons">
-          <button class="filter-btn btn-primary" data-filter="clean">Clean</button>
-          <button class="filter-btn" data-filter="bw">B&W</button>
-          <button class="filter-btn" data-filter="contrast">Sharp</button>
+
+        <!-- Image name input (top-left overlay) -->
+        <div class="image-name">
+          <input id="image-name-input" placeholder="Image name" />
         </div>
+
+        <!-- Filter toolbar (top-right overlay) -->
+        <div class="filter-toolbar" role="toolbar" aria-label="Filters">
+          <button class="filter-btn btn-primary" data-filter="clean" title="Clean">Clean</button>
+          <button class="filter-btn" data-filter="bw" title="Black & White">B&W</button>
+          <button class="filter-btn" data-filter="contrast" title="Sharp">Sharp</button>
+          <!-- extra helper icons (rotate, undo could be added later) -->
+        </div>
+
       </main>
       <div class="footer full">
         <button class="btn btn-primary" id="filter-review">Review</button>
@@ -340,9 +420,7 @@
     <section id="review-screen" class="screen">
       <header>
         <button class="header-btn" id="review-back">
-          <svg viewBox="0 0 24 24">
-            <path d="M19 12H5M12 19l-7-7 7-7"></path>
-          </svg>
+          <svg><use href="#icon-back"></use></svg>
         </button>
         <h1 id="review-title">Review</h1>
         <button class="header-btn" style="visibility: hidden;"></button>
@@ -351,14 +429,13 @@
         <div class="review-image">
           <img id="review-image" alt="review" />
         </div>
+
+        <!-- thumbnails moved up so not covered by footer -->
         <div class="review-thumbs" id="review-thumbs"></div>
       </main>
       <div class="footer full">
         <button class="btn btn-danger" id="review-delete">
-          <svg viewBox="0 0 24 24">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
+          <svg><use href="#icon-trash"></use></svg>
           Delete
         </button>
         <button class="btn btn-primary" id="review-save">Save</button>
@@ -369,9 +446,7 @@
     <section id="document-screen" class="screen">
       <header>
         <button class="header-btn" id="document-back">
-          <svg viewBox="0 0 24 24">
-            <path d="M19 12H5M12 19l-7-7 7-7"></path>
-          </svg>
+          <svg><use href="#icon-back"></use></svg>
         </button>
         <h1 id="document-title">Document</h1>
         <button class="header-btn" style="visibility: hidden;"></button>
@@ -379,18 +454,11 @@
       <main id="pages"></main>
       <div class="footer full">
         <button class="btn btn-danger" id="document-delete">
-          <svg viewBox="0 0 24 24">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
+          <svg><use href="#icon-trash"></use></svg>
           Delete
         </button>
         <button class="btn btn-primary" id="document-export">
-          <svg viewBox="0 0 24 24">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
+          <svg><use href="#icon-download"></use></svg>
           Export PDF
         </button>
       </div>
@@ -400,9 +468,7 @@
     <section id="settings-screen" class="screen">
       <header>
         <button class="header-btn" id="settings-back">
-          <svg viewBox="0 0 24 24">
-            <path d="M19 12H5M12 19l-7-7 7-7"></path>
-          </svg>
+          <svg><use href="#icon-back"></use></svg>
         </button>
         <h1>Settings</h1>
         <button class="header-btn" style="visibility: hidden;"></button>
@@ -443,6 +509,7 @@
       document.getElementById(id).classList.add("active");
     };
 
+    /* Render folders (removed the 3-dots menu as requested) */
     const renderFolders = () => {
       const grid = document.getElementById("folders");
       grid.innerHTML = "";
@@ -451,31 +518,16 @@
         const div = document.createElement("div");
         div.className = "folder";
         div.innerHTML = `
-          <button class="folder-menu"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
-          <div class="folder-icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
+          <div class="folder-icon"><svg><use href="#icon-folder"></use></svg></div>
           <div class="folder-name">${f.name}</div>
           <div class="folder-count">${count}</div>
         `;
-        const menu = div.querySelector(".folder-menu");
-        menu.onclick = (e) => {
-          e.stopPropagation();
-          const action = prompt("1: Rename\n2: Delete");
-          if (action === "1") {
-            const newName = prompt("New name:", f.name);
-            if (newName?.trim()) { f.name = newName; save(); renderFolders(); }
-          } else if (action === "2") {
-            if (confirm("Delete folder and all documents?")) {
-              Object.keys(state.docs).forEach(k => { if (state.docs[k].folder === f.id) delete state.docs[k]; });
-              state.folders = state.folders.filter(x => x.id !== f.id);
-              save(); renderFolders();
-            }
-          }
-        };
         div.onclick = () => openFolder(f.id);
         grid.appendChild(div);
       });
     };
 
+    /* Open folder */
     const openFolder = (id) => {
       state.folderNow = id;
       const folder = state.folders.find(f => f.id === id);
@@ -484,6 +536,8 @@
       show("folder-screen");
     };
 
+    /* Render docs inside a folder.
+       New behavior: actions hidden by default, shown on long-press (or via clicking the action buttons if visible). */
     const renderDocs = (id) => {
       const list = document.getElementById("docs");
       const empty = document.getElementById("folder-empty");
@@ -492,6 +546,7 @@
       if (!docs.length) { list.innerHTML = ""; empty.style.display = "flex"; return; }
       empty.style.display = "none";
       list.innerHTML = "";
+
       docs.forEach(d => {
         const card = document.createElement("div");
         card.className = "doc-card";
@@ -503,20 +558,66 @@
             <div class="doc-meta">${d.pages.length} page${d.pages.length !== 1 ? "s" : ""}</div>
           </div>
           <div class="doc-actions">
-            <button class="action-btn" data-action="rename"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
-            <button class="action-btn" data-action="move"><svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H9m4-12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h4a2 2 0 0 0 2-2V4"></path></svg></button>
-            <button class="action-btn" data-action="delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+            <button class="action-btn" data-action="select" title="Select / Toggle"><svg><use href="#icon-doc"></use></svg></button>
+            <button class="action-btn" data-action="rename" title="Rename"><svg><use href="#icon-pencil"></use></svg></button>
+            <button class="action-btn" data-action="move" title="Move"><svg><use href="#icon-move"></use></svg></button>
+            <button class="action-btn" data-action="delete" title="Delete"><svg><use href="#icon-trash"></use></svg></button>
           </div>
         `;
-        card.onclick = () => {
+
+        /* local vars for long-press logic */
+        let longPressTimer = null;
+        let longPressed = false;
+
+        const showActions = () => {
+          hideAllActions();
+          card.classList.add("show-actions");
+          longPressed = true;
+        };
+        const hideActions = () => {
+          card.classList.remove("show-actions");
+          longPressed = false;
+        };
+
+        /* start long-press timer (both mouse and touch) */
+        const startPress = (e) => {
+          e.preventDefault && e.preventDefault();
+          longPressTimer = setTimeout(() => {
+            showActions();
+          }, 500);
+        };
+        const cancelPress = (e) => {
+          if (longPressTimer) clearTimeout(longPressTimer);
+          // if the long-press already activated, prevent normal click toggling
+          setTimeout(() => { longPressTimer = null; }, 0);
+        };
+
+        /* short click toggles selection unless long-press activated */
+        card.addEventListener("click", (ev) => {
+          if (card.classList.contains("show-actions")) {
+            // if actions are visible, don't toggle selection here (let user use action buttons)
+            return;
+          }
+          // normal select toggle
           card.classList.toggle("selected");
           card.querySelector(".doc-checkbox").textContent = card.classList.contains("selected") ? "✓" : "";
-        };
+        });
+
+        /* pointer events for long press (covers mouse and touch) */
+        card.addEventListener("pointerdown", startPress);
+        card.addEventListener("pointerup", (e) => { cancelPress(e); });
+        card.addEventListener("pointerleave", (e) => { cancelPress(e); });
+
+        /* Action buttons */
         card.querySelectorAll(".action-btn").forEach(btn => {
-          btn.onclick = (e) => {
-            e.stopPropagation();
+          btn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
             const action = btn.getAttribute("data-action");
-            if (action === "rename") {
+            if (action === "select") {
+              card.classList.toggle("selected");
+              card.querySelector(".doc-checkbox").textContent = card.classList.contains("selected") ? "✓" : "";
+              hideActions();
+            } else if (action === "rename") {
               const newName = prompt("New name:", d.name);
               if (newName?.trim()) { d.name = newName; save(); renderDocs(id); }
             } else if (action === "move") {
@@ -529,12 +630,23 @@
             } else if (action === "delete") {
               if (confirm("Delete this document?")) { delete state.docs[d.id]; save(); renderDocs(id); }
             }
-          };
+          });
         });
+
         list.appendChild(card);
+      });
+
+      /* clicking outside any .doc-card hides all action strips */
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".doc-card")) hideAllActions();
       });
     };
 
+    const hideAllActions = () => {
+      document.querySelectorAll(".doc-card.show-actions").forEach(c => c.classList.remove("show-actions"));
+    };
+
+    /* Open a document (view pages) */
     const openDoc = (id) => {
       state.docNow = id;
       const d = state.docs[id];
@@ -550,6 +662,7 @@
       show("document-screen");
     };
 
+    /* Camera / capture */
     const startCamera = async () => {
       try {
         document.getElementById("camera-loading").style.display = "block";
@@ -576,7 +689,9 @@
       state.capture = canvas.toDataURL("image/jpeg", 0.85);
     };
 
+    /* Filters (same algorithm) */
     const applyFilter = (type) => {
+      if (!state.capture) return;
       const img = new Image();
       img.onload = () => {
         const c = document.createElement("canvas");
@@ -600,6 +715,7 @@
       img.src = state.capture;
     };
 
+    /* Review rendering (thumbnails moved up in CSS) */
     const renderReview = () => {
       const container = document.getElementById("review-thumbs");
       container.innerHTML = "";
@@ -614,17 +730,22 @@
       document.getElementById("review-title").textContent = `Review (${state.pageIdx + 1}/${state.pages.length})`;
     };
 
+    /* Save document */
     const saveDoc = () => {
       if (!state.pages.length) return;
       const folder = state.folderNow || state.folders[0].id;
       const now = Date.now();
       const date = new Date(now).toISOString().slice(0, 10);
+      // allow naming from image-name input when single page doc
+      const nameInput = document.getElementById("image-name-input");
+      const name = nameInput?.value?.trim() || ("Scan - " + date);
       const id = "doc_" + now;
-      state.docs[id] = {id, name: "Scan - " + date, folder, pages: [...state.pages], created: now};
+      state.docs[id] = {id, name, folder, pages: [...state.pages], created: now};
       state.pages = []; state.pageIdx = 0; state.capture = null;
       save(); openFolder(folder);
     };
 
+    /* Export PDF */
     const exportPDF = async () => {
       const d = state.docs[state.docNow];
       if (!d) return;
@@ -650,6 +771,7 @@
       }
     };
 
+    /* UI wiring */
     document.getElementById("add-folder-btn").onclick = () => {
       const name = prompt("Folder name:");
       if (!name?.trim()) return;
@@ -669,38 +791,69 @@
     };
 
     document.getElementById("capture-btn").onclick = () => { capture(); stopCamera(); show("preview-screen"); };
-    document.getElementById("preview-next").onclick = () => { document.getElementById("filter-image").src = state.capture; show("filter-screen"); };
+
+    document.getElementById("preview-next").onclick = () => {
+      // keep the image name entered (if any)
+      document.getElementById("filter-image").src = state.capture;
+      // pre-fill image-name input if empty
+      const nameInput = document.getElementById("image-name-input");
+      if (nameInput && !nameInput.value) {
+        const date = new Date().toISOString().slice(0,10);
+        nameInput.value = "Scan - " + date;
+      }
+      show("filter-screen");
+    };
+
     document.getElementById("preview-back").onclick = () => { show("camera-screen"); startCamera(); };
+
+    /* Filters: the filter toolbar buttons have class .filter-btn, reuse existing handler */
     document.querySelectorAll(".filter-btn").forEach(b => { b.onclick = () => applyFilter(b.getAttribute("data-filter")); });
+
     document.getElementById("filter-back").onclick = () => { show("preview-screen"); };
+
     document.getElementById("filter-review").onclick = () => {
+      // use the image-name input to rename the captured page if provided
+      const nameInput = document.getElementById("image-name-input");
+      if (nameInput?.value?.trim()) {
+        // attach name to a temporary pages list? We'll keep the doc-level naming on save.
+        // Keep capture as is.
+      }
       state.pages.push(state.capture);
       state.pageIdx = state.pages.length - 1;
       renderReview();
       show("review-screen");
     };
+
     document.getElementById("review-back").onclick = () => { state.pages.pop(); show("filter-screen"); };
+
     document.getElementById("review-delete").onclick = () => {
       if (state.pages.length < 2) { alert("Keep at least 1 page"); return; }
       state.pages.splice(state.pageIdx, 1);
       if (state.pageIdx >= state.pages.length) state.pageIdx--;
       renderReview();
     };
+
     document.getElementById("review-save").onclick = saveDoc;
+
     document.getElementById("camera-back").onclick = () => { stopCamera(); show("home-screen"); };
+
     document.getElementById("folder-back").onclick = () => show("home-screen");
     document.getElementById("document-back").onclick = () => show("folder-screen");
     document.getElementById("settings-back").onclick = () => show("home-screen");
+
     document.getElementById("document-export").onclick = exportPDF;
+
     document.getElementById("document-delete").onclick = () => {
       if (!confirm("Delete this document?")) return;
       delete state.docs[state.docNow];
       save();
       openFolder(state.folderNow);
     };
+
     document.getElementById("settings-btn").onclick = () => show("settings-screen");
     document.getElementById("help-btn").onclick = () => { document.getElementById("onboarding").classList.add("active"); };
     document.getElementById("about-btn").onclick = () => { alert("PaperClear v1.0\n\nOffline document scanner\n\nNo cloud • No accounts • No tracking"); };
+
     document.getElementById("onboard-start").onclick = () => {
       document.getElementById("onboarding").classList.remove("active");
       localStorage.setItem(ONBOARD, "1");
@@ -709,18 +862,20 @@
       document.getElementById("onboarding").classList.remove("active");
       localStorage.setItem(ONBOARD, "1");
     };
+
+    /* Search: shows matching docs as folders (same behavior as before) */
     document.getElementById("search").oninput = (e) => {
       const q = e.target.value.toLowerCase();
       if (!q) { renderFolders(); return; }
       const grid = document.getElementById("folders");
       grid.innerHTML = "";
       const matches = Object.values(state.docs).filter(d => d.name.toLowerCase().includes(q));
-      if (!matches.length) { grid.innerHTML = '<div class="empty" style="grid-column: 1/-1;"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg><p>No matches</p></div>'; return; }
+      if (!matches.length) { grid.innerHTML = '<div class="empty" style="grid-column: 1/-1;"><svg><use href="#icon-search"></use></svg><p>No matches</p></div>'; return; }
       matches.forEach(d => {
         const div = document.createElement("div");
         div.className = "folder";
         div.innerHTML = `
-          <div class="folder-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg></div>
+          <div class="folder-icon"><svg><use href="#icon-doc"></use></svg></div>
           <div class="folder-name">${d.name}</div>
           <div class="folder-count">${state.folders.find(f => f.id === d.folder)?.name || ""}</div>
         `;
@@ -729,8 +884,38 @@
       });
     };
 
+    /* Folder rename/delete handlers in header (when inside a folder) */
+    document.getElementById("folder-rename").addEventListener("click", () => {
+      const id = state.folderNow;
+      if (!id) return;
+      const folder = state.folders.find(f => f.id === id);
+      const newName = prompt("New folder name:", folder.name);
+      if (newName?.trim()) {
+        folder.name = newName;
+        save();
+        renderFolders();
+        document.getElementById("folder-title").textContent = folder.name;
+      }
+    });
+
+    document.getElementById("folder-delete").addEventListener("click", () => {
+      const id = state.folderNow;
+      if (!id) return;
+      const folder = state.folders.find(f => f.id === id);
+      if (!confirm(`Delete folder "${folder.name}" and all documents?`)) return;
+      Object.keys(state.docs).forEach(k => { if (state.docs[k].folder === id) delete state.docs[k]; });
+      state.folders = state.folders.filter(x => x.id !== id);
+      save();
+      renderFolders();
+      show("home-screen");
+    });
+
+    /* Export / Save wiring already added above */
+
+    /* Final init */
     load();
     renderFolders();
+
     setTimeout(() => {
       if (!localStorage.getItem(ONBOARD)) {
         document.getElementById("onboarding").classList.add("active");
