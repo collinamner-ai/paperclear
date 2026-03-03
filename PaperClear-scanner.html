@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>PaperClear</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-primary: #fafbfc;
+      --bg-secondary: #f3f5f7;
+      --fg-primary: #0f1419;
+      --fg-secondary: #626d7a;
+      --accent: #0066ff;
+      --accent-light: #e6f0ff;
+      --accent-dark: #004dd9;
+      --border: #e4e8ec;
+      --success: #00a651;
+      --danger: #d92d20;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+      --radius-md: 12px;
+      --radius-lg: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-primary);
+      color: var(--fg-primary);
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      position: fixed;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      background: var(--bg-primary);
+      overflow: hidden;
+    }
+
+    /* SPLASH SCREEN */
+    #splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0066ff 0%, #004dd9 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: splashFadeOut 0.5s ease 2.5s forwards;
+    }
+
+    @keyframes splashFadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; pointer-events: none; }
+    }
+
+    .splash-logo {
+      font-size: 64px;
+      margin-bottom: 16px;
+      animation: logoScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .splash-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      margin: 0;
+      text-align: center;
+      animation: fadeInUp 0.6s ease 0.3s backwards;
+    }
+
+    .splash-subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 8px;
+      animation: fadeInUp 0.6s ease 0.5s backwards;
+    }
+
+    @keyframes logoScale {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ONBOARDING SCREEN */
+    #onboarding-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      z-index: 999;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    #onboarding-screen.active {
+      display: flex;
+    }
+
+    .onboarding-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .onboarding-header h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .onboarding-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .onboarding-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .onboarding-step {
+      display: flex;
+      gap: 16px;
+    }
+
+    .step-icon {
+      font-size: 40px;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-light);
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+    }
+
+    .step-text h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--fg-primary);
+    }
+
+    .step-text p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--fg-secondary);
+      line-height: 1.5;
+    }
+
+    .onboarding-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+
+    .onboarding-footer button {
+      flex: 1;
+    }
+
+    /* HEADER */
+    header {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+      min-height: 48px;
+    }
+
+    header h1, header h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--fg-primary);
+      flex: 1;
+    }
+
+    .header-icon {
+      font-size: 20px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      transition: background 0.2s ease;
+    }
+
+    .header-icon:active {
+      background: var(--bg-secondary);
+    }
+
+    /* SCREENS */
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 0;
+    }
+
+    main::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    main::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    /* BUTTONS */
+    button {
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      background: white;
+      color: var(--fg-primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      min-height: 40px;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    button:active:not(:disabled) {
+      opacity: 0.8;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    button.danger {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+
+    .back-btn, .cancel-btn {
+      padding: 8px 12px;
+      font-size: 13px;
+      gap: 4px;
+      min-height: auto;
+    }
+
+    /* INPUTS */
+    input[type="text"],
+    input[type="search"] {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: white;
+      font-size: 13px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      color: var(--fg-primary);
+      min-height: 36px;
+    }
+
+    input[type="text"]:focus,
+    input[type="search"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    input::placeholder {
+      color: var(--fg-secondary);
+    }
+
+    /* FOLDER GRID */
+    #folder-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 0;
+    }
+
+    .folder-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      text-align: center;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      min-height: 90px;
+      justify-content: center;
+    }
+
+    .folder-card:active {
+      transform: scale(0.95);
+      border-color: var(--accent);
+    }
+
+    .folder-card .icon {
+      font-size: 24px;
+    }
+
+    .folder-card .name {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--fg-primary);
+      line-height: 1.2;
+    }
+
+    .folder-card .count {
+      font-size: 9px;
+      color: var(--fg-secondary);
+    }
+
+    /* DOCUMENT LIST */
+    #document-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .doc-item {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 10px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      min-height: 80px;
+    }
+
+    .doc-item:active {
+      opacity: 0.8;
+    }
+
+    .doc-item .thumbnail {
+      width: 70px;
+      height: 90px;
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .doc-item .thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .doc-item .info {
+      flex: 1;
+    }
+
+    .doc-item .name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--fg-primary);
+      margin-bottom: 4px;
+    }
+
+    .doc-item .meta {
+      font-size: 12px;
+      color: var(--fg-secondary);
+    }
+
+    .doc-item .badge {
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--fg-secondary);
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state .text {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* CAMERA VIEW */
+    #camera-view main {
+      padding: 0;
+      background: #000;
+      position: relative;
+    }
+
+    #camera-feed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #000;
+      display: block;
+    }
+
+    .camera-controls {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .camera-capture-btn {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 4px solid white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      padding: 0;
+    }
+
+    .camera-capture-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* PREVIEW/CROP VIEW */
+    #crop-view main {
+      padding: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #crop-canvas {
+      width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+
+    /* FILTER VIEW */
+    #filter-view main {
+      padding: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #filter-preview {
+      width: 100%;
+      max-height: calc(100% - 100px);
+      object-fit: contain;
+      background: #000;
+    }
+
+    .filter-controls {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 16px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .filter-controls button {
+      font-size: 12px;
+      padding: 8px 12px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-color: rgba(255, 255, 255, 0.2);
+      min-height: auto;
+    }
+
+    .filter-controls button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* PAGE THUMBNAILS */
+    #page-thumbnails {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 12px;
+      padding: 0;
+      margin-top: 12px;
+    }
+
+    .thumb {
+      aspect-ratio: 3/4;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border);
+      overflow: hidden;
+      background: var(--bg-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .thumb:active {
+      opacity: 0.8;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* REVIEW SCREEN */
+    #review-screen main {
+      padding: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .review-preview {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    .review-preview img {
+      width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .review-thumbnails-container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 12px 16px;
+      overflow-x: auto;
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .review-thumb {
+      width: 60px;
+      height: 80px;
+      border-radius: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      overflow: hidden;
+      flex-shrink: 0;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .review-thumb.active {
+      border-color: var(--accent);
+    }
+
+    .review-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* FOOTER ACTIONS */
+   .footer-actions {
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  background: white;
+  flex-shrink: 0;
+  min-height: 48px;
+
+  margin-bottom: 60px; /* ← Add this */
+}
+
+    .footer-actions.reverse {
+      flex-direction: row-reverse;
+    }
+
+    .footer-actions.full {
+      justify-content: stretch;
+    }
+
+    .footer-actions.full button {
+      flex: 1;
+    }
+
+    /* SETTINGS */
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 12px;
+    }
+
+    .settings-item {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+
+    .settings-item button {
+      width: 100%;
+      justify-content: space-between;
+      padding: 12px 0;
+      border: none;
+      background: transparent;
+      text-align: left;
+      color: var(--fg-primary);
+      min-height: auto;
+    }
+
+    .settings-item .arrow {
+      color: var(--fg-secondary);
+      font-size: 16px;
+    }
+
+    .privacy-note {
+      font-size: 13px;
+      color: var(--fg-secondary);
+      margin-top: 24px;
+      padding: 16px;
+      background: var(--accent-light);
+      border-radius: var(--radius-md);
+      line-height: 1.6;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 20px;
+      width: 100%;
+      max-height: 90%;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--fg-primary);
+    }
+
+    .modal p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--fg-secondary);
+    }
+
+    .modal input {
+      margin: 0;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      min-height: 44px;
+    }
+
+    /* UTILITY */
+    .spacer {
+      flex: 1;
+    }
+
+    .text-secondary {
+      color: var(--fg-secondary);
+      font-size: 13px;
+    }
+
+    @media (max-height: 600px) {
+      header {
+        padding: 8px 12px;
+        min-height: 48px;
+      }
+
+      .footer-actions {
+        padding: 8px 12px;
+        min-height: 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen">
+      <div class="splash-logo">📄</div>
+      <h1 class="splash-title">PaperClear</h1>
+      <p class="splash-subtitle">Scan documents offline, locally, privately</p>
+    </div>
+
+    <!-- ONBOARDING SCREEN -->
+    <section id="onboarding-screen">
+      <div class="onboarding-header">
+        <h2>Quick Start Guide</h2>
+        <button class="header-icon" id="onboarding-close">✕</button>
+      </div>
+      <div class="onboarding-content">
+        <div class="onboarding-steps">
+          <div class="onboarding-step">
+            <div class="step-icon">📸</div>
+            <div class="step-text">
+              <h3>1. Capture</h3>
+              <p>Point your camera at a document and tap the capture button. Frame the entire page.</p>
+            </div>
+          </div>
+          <div class="onboarding-step">
+            <div class="step-icon">✨</div>
+            <div class="step-text">
+              <h3>2. Enhance</h3>
+              <p>Choose from Clean, B&W, or Sharp filters to improve readability. You can try different options.</p>
+            </div>
+          </div>
+          <div class="onboarding-step">
+            <div class="step-icon">📄</div>
+            <div class="step-text">
+              <h3>3. Preview & Review</h3>
+              <p>Review all pages before saving. Swipe through thumbnails and delete any bad captures.</p>
+            </div>
+          </div>
+          <div class="onboarding-step">
+            <div class="step-icon">💾</div>
+            <div class="step-text">
+              <h3>4. Save & Organize</h3>
+              <p>Save to folders (Tax, Medical, Receipts, etc.) and export as PDF to your device.</p>
+            </div>
+          </div>
+          <div class="onboarding-step">
+            <div class="step-icon">🔒</div>
+            <div class="step-text">
+              <h3>Privacy First</h3>
+              <p>Everything stays on your device. No cloud, no accounts, no tracking. Ever.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="onboarding-footer">
+        <button id="onboarding-start" class="primary">Get Started</button>
+      </div>
+    </section>
+
+    <!-- HOME SCREEN -->
+    <section id="home-screen" class="screen active">
+      <header>
+        <h1>📄 PaperClear</h1>
+        <div class="header-icon" id="settings-btn">⚙️</div>
+      </header>
+      <main>
+        <input type="search" id="search-input" placeholder="Search documents…" />
+        <div id="folder-grid"></div>
+        <div id="home-empty" class="empty-state" style="display:none;">
+          <div class="icon">📁</div>
+          <div class="text">Create a folder or scan your first document</div>
+        </div>
+      </main>
+      <div class="footer-actions reverse full">
+        <button id="scan-btn" class="primary">📸 Scan</button>
+        <button id="new-folder-btn">+ Folder</button>
+      </div>
+    </section>
+
+    <!-- FOLDER VIEW -->
+    <section id="folder-view" class="screen">
+      <header>
+        <button class="back-btn" data-back="home-screen">← Back</button>
+        <h2 id="folder-title">Folder</h2>
+      </header>
+      <main>
+        <div id="document-list"></div>
+        <div id="folder-empty" class="empty-state" style="display:none;">
+          <div class="icon">📄</div>
+          <div class="text">No documents yet</div>
+        </div>
+      </main>
+      <div class="footer-actions reverse full">
+        <button id="scan-to-folder-btn" class="primary">📸 Scan</button>
+      </div>
+    </section>
+
+    <!-- CAMERA VIEW -->
+    <section id="camera-view" class="screen">
+      <header style="background: #000; border-bottom-color: transparent;">
+        <button class="cancel-btn" data-back="home-screen" style="color: white;">✕</button>
+        <h2 style="color: white;">Capture</h2>
+      </header>
+      <main>
+        <div id="camera-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 14px; text-align: center; z-index: 5; display: none;">
+          <div style="font-size: 24px; margin-bottom: 8px;">📷</div>
+          <div>Accessing camera...</div>
+        </div>
+        <video id="camera-feed" autoplay muted playsinline webkit-playsinline></video>
+        <div class="camera-controls">
+          <button class="camera-capture-btn" id="capture-btn">📷</button>
+        </div>
+      </main>
+    </section>
+
+    <!-- CROP VIEW -->
+    <section id="crop-view" class="screen">
+      <header style="background: #000; border-bottom-color: transparent;">
+        <button class="back-btn" id="retake-btn" style="color: white;">← Retake</button>
+        <h2 style="color: white;">Preview</h2>
+      </header>
+      <main>
+        <canvas id="crop-canvas"></canvas>
+      </main>
+      <div class="footer-actions">
+        <button id="crop-next-btn" class="primary">Next</button>
+      </div>
+    </section>
+
+    <!-- FILTER VIEW -->
+    <section id="filter-view" class="screen">
+      <header style="background: #000; border-bottom-color: transparent;">
+        <button id="add-page-btn" style="color: white;">+ Add Page</button>
+        <h2 style="color: white;">Enhance</h2>
+      </header>
+      <main>
+        <img id="filter-preview" alt="Preview" />
+        <div class="filter-controls">
+          <button data-filter="none" class="primary">✨ Clean</button>
+          <button data-filter="bw">⬜ B&W</button>
+          <button data-filter="contrast">◆ Sharp</button>
+        </div>
+      </main>
+      <div class="footer-actions">
+        <button id="save-changes-btn">Update</button>
+        <button id="preview-pages-btn" class="primary">Preview Pages</button>
+      </div>
+    </section>
+
+    <!-- REVIEW/PREVIEW SCREEN (before saving) -->
+    <section id="review-screen" class="screen">
+      <header style="background: #000; border-bottom-color: transparent;">
+        <button class="back-btn" id="back-to-filter-btn" style="color: white;">← Back</button>
+        <h2 style="color: white;" id="review-title">Review</h2>
+      </header>
+      <main>
+        <div class="review-preview">
+          <img id="review-image" alt="Review" />
+        </div>
+        <div class="review-thumbnails-container">
+          <div id="review-thumbnails"></div>
+        </div>
+      </main>
+      <div class="footer-actions reverse full">
+        <button id="confirm-save-btn" class="primary">✓ Save</button>
+        <button id="delete-page-btn" class="danger">🗑 Remove</button>
+      </div>
+    </section>
+
+    <!-- DOCUMENT VIEWER -->
+    <section id="document-viewer" class="screen">
+      <header>
+        <button class="back-btn" data-back="folder-view">← Back</button>
+        <h2 id="doc-title">Document</h2>
+      </header>
+      <main>
+        <div id="page-thumbnails"></div>
+      </main>
+      <div class="footer-actions reverse full">
+        <button id="export-pdf-btn" class="primary">⬆ Export PDF</button>
+        <button id="delete-doc-btn" class="danger">🗑 Delete</button>
+      </div>
+    </section>
+
+    <!-- SETTINGS SCREEN -->
+    <section id="settings-screen" class="screen">
+      <header>
+        <button class="back-btn" data-back="home-screen">← Back</button>
+        <h2>Settings</h2>
+      </header>
+      <main>
+        <div class="settings-list">
+          <div class="settings-item">
+            <button id="help-btn">
+              <span>Help & Guide</span>
+              <span class="arrow">›</span>
+            </button>
+          </div>
+          <div class="settings-item">
+            <button id="about-btn">
+              <span>About PaperClear</span>
+              <span class="arrow">›</span>
+            </button>
+          </div>
+        </div>
+        <div class="privacy-note">
+          🔒 <strong>Privacy Guaranteed:</strong> Everything stays on your device. No cloud uploads, no accounts, no tracking. Your documents are yours alone.
+        </div>
+      </main>
+    </section>
+
+  </div>
+
+  <!-- MODAL for inputs -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div class="modal">
+      <h3 id="modal-title">Modal</h3>
+      <p id="modal-desc" style="display:none;"></p>
+      <input type="text" id="modal-input" placeholder="" />
+      <div class="modal-actions">
+        <button id="modal-cancel">Cancel</button>
+        <button id="modal-confirm" class="primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "paperclear_v1";
+    const ONBOARDING_KEY = "paperclear_onboarding_done";
+
+    let state = {
+      folders: [],
+      documents: {},
+      currentFolderId: null,
+      currentDocId: null,
+      tempPages: [],
+      currentCaptureDataUrl: null,
+      currentReviewPageIndex: 0
+    };
+
+    let mediaStream = null;
+    let modalCallback = null;
+
+    // STORAGE
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          state = JSON.parse(raw);
+        } catch (e) {
+          console.warn("Failed to parse state", e);
+        }
+      }
+
+      if (!state.folders || state.folders.length === 0) {
+        state.folders = [
+          { id: "tax", name: "Tax Returns", icon: "📋" },
+          { id: "legal", name: "Legal Docs", icon: "📜" },
+          { id: "receipts", name: "Receipts", icon: "🧾" },
+          { id: "health", name: "Medical", icon: "🏥" },
+          { id: "kids", name: "Education", icon: "🎓" },
+          { id: "work", name: "Work", icon: "💼" }
+        ];
+      }
+
+      if (!state.documents) state.documents = {};
+      if (!state.tempPages) state.tempPages = [];
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function markOnboardingDone() {
+      localStorage.setItem(ONBOARDING_KEY, "true");
+    }
+
+    function shouldShowOnboarding() {
+      return !localStorage.getItem(ONBOARDING_KEY);
+    }
+
+    // UI MANAGEMENT
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function showModal(title, placeholder, defaultValue, callback) {
+      const modal = document.getElementById("modal-overlay");
+      const titleEl = document.getElementById("modal-title");
+      const input = document.getElementById("modal-input");
+
+      titleEl.textContent = title;
+      input.placeholder = placeholder;
+      input.value = defaultValue || "";
+      modalCallback = callback;
+      modal.classList.add("active");
+      setTimeout(() => input.focus(), 100);
+    }
+
+    function hideModal() {
+      document.getElementById("modal-overlay").classList.remove("active");
+      modalCallback = null;
+    }
+
+    // RENDER
+    function renderFolders() {
+      const grid = document.getElementById("folder-grid");
+      const empty = document.getElementById("home-empty");
+
+      if (state.folders.length === 0) {
+        grid.innerHTML = "";
+        empty.style.display = "flex";
+        return;
+      }
+
+      empty.style.display = "none";
+      grid.innerHTML = "";
+
+      state.folders.forEach(folder => {
+        const docCount = Object.values(state.documents).filter(d => d.folderId === folder.id).length;
+        const card = document.createElement("div");
+        card.className = "folder-card";
+        card.innerHTML = `
+          <div class="icon">${folder.icon || '📁'}</div>
+          <div class="name">${folder.name}</div>
+          <div class="count">${docCount}</div>
+        `;
+        card.onclick = () => openFolder(folder.id);
+        grid.appendChild(card);
+      });
+    }
+
+    function openFolder(folderId) {
+      state.currentFolderId = folderId;
+      const folder = state.folders.find(f => f.id === folderId);
+      document.getElementById("folder-title").textContent = folder ? folder.name : "Folder";
+      renderDocuments(folderId);
+      showScreen("folder-view");
+    }
+
+    function renderDocuments(folderId) {
+      const list = document.getElementById("document-list");
+      const empty = document.getElementById("folder-empty");
+
+      const docs = Object.values(state.documents)
+        .filter(d => d.folderId === folderId)
+        .sort((a, b) => b.createdAt - a.createdAt);
+
+      if (docs.length === 0) {
+        list.innerHTML = "";
+        empty.style.display = "flex";
+        return;
+      }
+
+      empty.style.display = "none";
+      list.innerHTML = "";
+
+      docs.forEach(doc => {
+        const item = document.createElement("div");
+        item.className = "doc-item";
+        item.innerHTML = `
+          <div class="thumbnail">
+            ${doc.pages[0] ? `<img src="${doc.pages[0]}" alt="${doc.name}" />` : ''}
+          </div>
+          <div class="info">
+            <div class="name">${doc.name}</div>
+            <div class="meta">${doc.pages.length} page${doc.pages.length !== 1 ? "s" : ""}</div>
+          </div>
+          <div class="badge">PDF</div>
+        `;
+        item.onclick = () => openDocument(doc.id);
+        list.appendChild(item);
+      });
+    }
+
+    function openDocument(docId) {
+      state.currentDocId = docId;
+      const doc = state.documents[docId];
+      if (!doc) return;
+
+      document.getElementById("doc-title").textContent = doc.name;
+      const container = document.getElementById("page-thumbnails");
+      container.innerHTML = "";
+
+      doc.pages.forEach((dataUrl, idx) => {
+        const thumb = document.createElement("div");
+        thumb.className = "thumb";
+        thumb.innerHTML = `<img src="${dataUrl}" alt="Page ${idx + 1}" />`;
+        container.appendChild(thumb);
+      });
+
+      showScreen("document-viewer");
+    }
+
+    // CAMERA
+    async function startCamera() {
+      try {
+        console.log("Requesting camera access...");
+        document.getElementById("camera-loading").style.display = "block";
+        
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            facingMode: "environment",
+            width: { ideal: 1280 },
+            height: { ideal: 1920 }
+          }
+        });
+        
+        document.getElementById("camera-loading").style.display = "none";
+        const video = document.getElementById("camera-feed");
+        video.srcObject = mediaStream;
+        console.log("Camera access granted");
+      } catch (e) {
+        document.getElementById("camera-loading").style.display = "none";
+        console.error("Camera error:", e);
+        
+        if (e.name === "NotAllowedError") {
+          alert("Camera permission denied.\n\nPlease go to Settings > Apps > PaperClear > Permissions and enable Camera.");
+        } else if (e.name === "NotFoundError") {
+          alert("No camera found on this device.");
+        } else if (e.name === "NotReadableError") {
+          alert("Camera is in use by another app. Please close it and try again.");
+        } else {
+          alert("Unable to access camera. Error: " + e.name);
+        }
+        
+        showScreen("home-screen");
+      }
+    }
+
+    function stopCamera() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(t => t.stop());
+        mediaStream = null;
+      }
+    }
+
+    function captureFrame() {
+      const video = document.getElementById("camera-feed");
+      const canvas = document.getElementById("crop-canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = video.videoWidth || 1080;
+      canvas.height = video.videoHeight || 1920;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      state.currentCaptureDataUrl = canvas.toDataURL("image/jpeg", 0.85);
+    }
+
+    function applyFilter(type) {
+      if (!state.currentCaptureDataUrl) return;
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        if (type === "bw" || type === "contrast") {
+          const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imgData.data;
+          for (let i = 0; i < data.length; i += 4) {
+            const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+            let v = avg;
+            if (type === "contrast") {
+              const factor = 1.5;
+              v = Math.max(0, Math.min(255, (avg - 128) * factor + 128));
+            }
+            data[i] = data[i + 1] = data[i + 2] = v;
+          }
+          ctx.putImageData(imgData, 0, 0);
+        }
+
+        const filtered = canvas.toDataURL("image/jpeg", 0.85);
+        state.currentCaptureDataUrl = filtered;
+        document.getElementById("filter-preview").src = filtered;
+      };
+      img.src = state.currentCaptureDataUrl;
+    }
+
+    function renderReview() {
+      const container = document.getElementById("review-thumbnails");
+      container.innerHTML = "";
+
+      state.tempPages.forEach((page, idx) => {
+        const thumb = document.createElement("div");
+        thumb.className = "review-thumb" + (idx === state.currentReviewPageIndex ? " active" : "");
+        thumb.innerHTML = `<img src="${page}" alt="Page ${idx + 1}" />`;
+        thumb.onclick = () => {
+          state.currentReviewPageIndex = idx;
+          renderReview();
+          document.getElementById("review-image").src = state.tempPages[idx];
+        };
+        container.appendChild(thumb);
+      });
+
+      document.getElementById("review-image").src = state.tempPages[state.currentReviewPageIndex];
+      document.getElementById("review-title").textContent = `Review (${state.currentReviewPageIndex + 1}/${state.tempPages.length})`;
+    }
+
+    function saveCurrentScan() {
+      if (state.tempPages.length === 0) return;
+
+      const folderId = state.currentFolderId || state.folders[0].id;
+      const timestamp = Date.now();
+      const date = new Date(timestamp).toISOString().slice(0, 10);
+      const id = "doc_" + timestamp;
+      const name = `Scan - ${date}`;
+
+      state.documents[id] = {
+        id,
+        name,
+        folderId,
+        pages: [...state.tempPages],
+        createdAt: timestamp
+      };
+
+      state.tempPages = [];
+      state.currentReviewPageIndex = 0;
+      saveState();
+      openFolder(folderId);
+    }
+
+    // EXPORT
+    async function exportCurrentDocAsPDF() {
+      const doc = state.documents[state.currentDocId];
+      if (!doc) return;
+
+      const btn = document.getElementById("export-pdf-btn");
+      btn.disabled = true;
+      btn.textContent = "⏳ Creating…";
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ unit: "pt", format: "a4" });
+
+        for (let i = 0; i < doc.pages.length; i++) {
+          if (i > 0) pdf.addPage();
+          const img = doc.pages[i];
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+          pdf.addImage(img, "JPEG", 0, 0, pageWidth, pageHeight);
+        }
+
+        pdf.save(doc.name + ".pdf");
+        btn.textContent = "✓ Saved";
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = "⬆ Export PDF";
+        }, 2000);
+      } catch (e) {
+        console.error(e);
+        btn.disabled = false;
+        btn.textContent = "⬆ Export PDF";
+        alert("Export failed. Try again.");
+      }
+    }
+
+    // EVENTS
+    function setupEvents() {
+      // Splash & Onboarding
+      setTimeout(() => {
+        if (shouldShowOnboarding()) {
+          document.getElementById("onboarding-screen").classList.add("active");
+        }
+      }, 2700);
+
+      document.getElementById("onboarding-start").onclick = () => {
+        document.getElementById("onboarding-screen").classList.remove("active");
+        markOnboardingDone();
+      };
+
+      document.getElementById("onboarding-close").onclick = () => {
+        document.getElementById("onboarding-screen").classList.remove("active");
+        markOnboardingDone();
+      };
+
+      // Main navigation
+      document.getElementById("settings-btn").onclick = () => showScreen("settings-screen");
+
+      document.querySelectorAll(".back-btn").forEach(btn => {
+        btn.onclick = () => {
+          const target = btn.getAttribute("data-back");
+          if (target) showScreen(target);
+        };
+      });
+
+      document.querySelectorAll(".cancel-btn").forEach(btn => {
+        btn.onclick = () => {
+          stopCamera();
+          showScreen(btn.getAttribute("data-back") || "home-screen");
+        };
+      });
+
+      // Folder & Document
+      document.getElementById("new-folder-btn").onclick = () => {
+        showModal("New Folder", "Folder name", "", (name) => {
+          if (!name) return;
+          const id = name.toLowerCase().replace(/\s+/g, "-") + "-" + Date.now();
+          state.folders.push({ id, name, icon: "📁" });
+          saveState();
+          renderFolders();
+          hideModal();
+        });
+      };
+
+      document.getElementById("scan-btn").onclick = () => {
+        state.currentFolderId = null;
+        state.tempPages = [];
+        state.currentReviewPageIndex = 0;
+        showScreen("camera-view");
+        startCamera();
+      };
+
+      document.getElementById("scan-to-folder-btn").onclick = () => {
+        state.tempPages = [];
+        state.currentReviewPageIndex = 0;
+        showScreen("camera-view");
+        startCamera();
+      };
+
+      // Camera capture flow
+      document.getElementById("capture-btn").onclick = () => {
+        captureFrame();
+        stopCamera();
+        showScreen("crop-view");
+      };
+
+      document.getElementById("retake-btn").onclick = () => {
+        state.currentCaptureDataUrl = null;
+        showScreen("camera-view");
+        startCamera();
+      };
+
+      document.getElementById("crop-next-btn").onclick = () => {
+        if (!state.currentCaptureDataUrl) return;
+        document.getElementById("filter-preview").src = state.currentCaptureDataUrl;
+        showScreen("filter-view");
+      };
+
+      // Filter controls
+      document.querySelectorAll(".filter-controls button").forEach(btn => {
+        btn.onclick = () => {
+          const type = btn.getAttribute("data-filter");
+          applyFilter(type);
+        };
+      });
+
+      document.getElementById("add-page-btn").onclick = () => {
+        if (!state.currentCaptureDataUrl) return;
+        state.tempPages.push(state.currentCaptureDataUrl);
+        state.currentCaptureDataUrl = null;
+        showScreen("camera-view");
+        startCamera();
+      };
+
+      document.getElementById("save-changes-btn").onclick = () => {
+        // User wants to try different filter - update preview
+        document.getElementById("filter-preview").src = state.currentCaptureDataUrl;
+      };
+
+      document.getElementById("preview-pages-btn").onclick = () => {
+        if (!state.currentCaptureDataUrl) return;
+        state.tempPages.push(state.currentCaptureDataUrl);
+        state.currentCaptureDataUrl = null;
+        state.currentReviewPageIndex = state.tempPages.length - 1;
+        renderReview();
+        showScreen("review-screen");
+      };
+
+      // Review screen
+      document.getElementById("back-to-filter-btn").onclick = () => {
+        // Go back to filter for the last page
+        const lastPage = state.tempPages[state.tempPages.length - 1];
+        state.currentCaptureDataUrl = lastPage;
+        state.tempPages.pop();
+        document.getElementById("filter-preview").src = state.currentCaptureDataUrl;
+        showScreen("filter-view");
+      };
+
+      document.getElementById("delete-page-btn").onclick = () => {
+        if (state.tempPages.length <= 1) {
+          alert("Must keep at least one page");
+          return;
+        }
+        state.tempPages.splice(state.currentReviewPageIndex, 1);
+        if (state.currentReviewPageIndex >= state.tempPages.length) {
+          state.currentReviewPageIndex = state.tempPages.length - 1;
+        }
+        renderReview();
+      };
+
+      document.getElementById("confirm-save-btn").onclick = () => {
+        saveCurrentScan();
+      };
+
+      // Document viewer
+      document.getElementById("export-pdf-btn").onclick = exportCurrentDocAsPDF;
+
+      document.getElementById("delete-doc-btn").onclick = () => {
+        const doc = state.documents[state.currentDocId];
+        if (!doc) return;
+        if (confirm("Permanently delete this document?")) {
+          delete state.documents[doc.id];
+          saveState();
+          openFolder(doc.folderId);
+        }
+      };
+
+      // Search
+      document.getElementById("search-input").oninput = (e) => {
+        const q = e.target.value.toLowerCase();
+        if (!q) {
+          renderFolders();
+          return;
+        }
+
+        const grid = document.getElementById("folder-grid");
+        grid.innerHTML = "";
+        const docs = Object.values(state.documents).filter(d => d.name.toLowerCase().includes(q));
+
+        if (docs.length === 0) {
+          grid.innerHTML = "<div class='empty-state' style='grid-column: 1/-1;'><div class='icon'>🔍</div><div class='text'>No matches found</div></div>";
+          return;
+        }
+
+        docs.forEach(doc => {
+          const folder = state.folders.find(f => f.id === doc.folderId);
+          const card = document.createElement("div");
+          card.className = "folder-card";
+          card.innerHTML = `
+            <div class="icon">📄</div>
+            <div class="name">${doc.name}</div>
+            <div class="count">${folder ? folder.name : "Unknown"}</div>
+          `;
+          card.onclick = () => openDocument(doc.id);
+          grid.appendChild(card);
+        });
+      };
+
+      // Settings stubs
+      document.getElementById("help-btn").onclick = () => {
+        document.getElementById("onboarding-screen").classList.add("active");
+      };
+
+      document.getElementById("about-btn").onclick = () => {
+        alert("PaperClear v1.0\n\n📄 Scan documents offline\n🔒 Everything stays on your device\n💾 Export as PDF locally\n\nNo cloud. No accounts. No tracking.");
+      };
+
+      // Modal
+      document.getElementById("modal-cancel").onclick = hideModal;
+      document.getElementById("modal-overlay").onclick = (e) => {
+        if (e.target === document.getElementById("modal-overlay")) hideModal();
+      };
+      document.getElementById("modal-confirm").onclick = () => {
+        const value = document.getElementById("modal-input").value;
+        if (modalCallback) modalCallback(value);
+        hideModal();
+      };
+      document.getElementById("modal-input").onkeypress = (e) => {
+        if (e.key === "Enter") document.getElementById("modal-confirm").click();
+      };
+    }
+
+    // INIT
+    loadState();
+    renderFolders();
+    setupEvents();
+
+    // Request camera permission on first load if supported
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        const hasCamera = devices.some(device => device.kind === 'videoinput');
+        if (!hasCamera) {
+          console.warn("No camera device found");
+        }
+      }).catch(err => {
+        console.warn("Could not enumerate devices:", err);
+      });
+    }
+  </script>
+</body>
+</html>
