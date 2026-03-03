@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <title>PaperClear</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    :root { --primary: #0066ff; --primary-dark: #004dd9; --bg: #f8f9fb; --surface: #ffffff; --text-primary: #0f1419; --text-secondary: #626d7a; --border: #e4e8ec; --danger: #d92d20; }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    :root { --primary: #0066ff; --primary-dark: #004dd9; --bg: #f8f9fb; --surface: #ffffff; --text-primary: #0f1419; --text-secondary: #626d7a; --border: #e4e8ec; --danger: #d92d20; --footer-h: 68px; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text-primary); height: 100%; width: 100%; overflow: hidden; position: fixed; }
     .app { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
 
@@ -15,7 +15,6 @@
     #splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; animation: splashOut 0.4s ease 2.6s forwards; text-align: center; color: white; }
     @keyframes splashOut { from { opacity: 1; } to { opacity: 0; pointer-events: none; } }
     .splash-logo { width: 80px; height: 80px; margin: 0 auto 20px; animation: logoIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); display:flex; align-items:center; justify-content:center; color: white; }
-    /* ensure symbol strokes inherit correctly */
     .splash-logo use, .splash-logo path, .splash-logo polyline, .splash-logo circle { stroke: currentColor; fill: none; stroke-width: 1.5; }
     .splash-title { font-size: 32px; font-weight: 700; margin: 0 0 8px; animation: fadeUp 0.6s ease 0.2s backwards; }
     .splash-subtitle { font-size: 14px; opacity: 0.9; animation: fadeUp 0.6s ease 0.4s backwards; }
@@ -41,41 +40,40 @@
     .header-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
     .header-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; }
 
-    /* small textual settings button */
+    /* settings text button */
     .settings-text-btn { background: rgba(255,255,255,0.18); border: none; color: white; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px; }
 
     /* Screens */
     .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; }
     .screen.active { display: flex; }
     main { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-    #home-screen main { padding-bottom: 140px; }
+    #home-screen main { padding-bottom: calc(var(--footer-h) + 40px); }
 
-    /* Folder grid */
-    .search-box { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--surface); }
+    /* Folder grid (compact 2-column style) */
+    .search-box { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; background: var(--surface); }
     .folders-header { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
     .folders-header h3 { margin: 0; font-size: 14px; font-weight: 600; }
     .add-folder-btn { background: none; border: none; color: var(--primary); cursor: pointer; padding: 4px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
-    .add-folder-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
+    .add-folder-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-    /* make folders grid compact and two columns */
-    .folders-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 6px; }
-    .folder { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; position: relative; min-height: 72px; justify-content: center; }
+    .folders-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 8px; align-items: start; }
+    .folder { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; position: relative; min-height: 64px; justify-content: center; transition: transform .12s ease; }
     .folder:active { transform: scale(0.98); }
-    .folder-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+    .folder-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
     .folder-icon svg { width: 100%; height: 100%; stroke: var(--primary); fill: none; stroke-width: 1.5; }
-    .folder-name { font-size: 13px; font-weight: 600; }
+    .folder-name { font-size: 13px; font-weight: 600; line-height: 1; }
     .folder-count { font-size: 11px; color: var(--text-secondary); }
 
     /* Scan hero */
     .scan-hero { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 50; }
-    .big-scan-btn { width: 90px; height: 90px; border-radius: 50%; background: var(--primary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(0,102,255,0.4); padding: 0; }
-    .big-scan-btn:active { transform: scale(0.92); }
-    .big-scan-btn svg { width: 44px; height: 44px; stroke: white; fill: none; stroke-width: 1.5; }
+    .big-scan-btn { width: 84px; height: 84px; border-radius: 50%; background: var(--primary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(0,102,255,0.32); padding: 0; }
+    .big-scan-btn svg { width: 40px; height: 40px; stroke: white; fill: none; stroke-width: 1.5; }
     .scan-text { font-size: 12px; font-weight: 500; color: var(--text-primary); }
 
     /* Docs list & cards */
-    .docs-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 160px; } /* extra space for popover actions */
-    .doc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; display: flex; gap: 12px; cursor: pointer; align-items: center; position: relative; }
+    .docs-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: calc(var(--footer-h) + 40px); } /* extra space for popover actions */
+    .doc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; display: flex; gap: 12px; cursor: pointer; align-items: center; position: relative; transition: transform .08s ease; }
+    .doc-card:active { transform: scale(0.995); }
     .doc-card.selected { background: #f0f5ff; border-color: var(--primary); }
     .doc-checkbox { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; color: white; }
     .doc-card.selected .doc-checkbox { background: var(--primary); border-color: var(--primary); }
@@ -92,7 +90,7 @@
       position: absolute;
       left: 12px;
       right: 12px;
-      bottom: -64px;
+      bottom: -68px;
       background: var(--surface);
       padding: 8px;
       border-radius: 8px;
@@ -100,14 +98,16 @@
       align-items: center;
       justify-content: space-between;
     }
-    .action-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+    .action-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
     .action-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; }
 
+    /* increase size for move icon button (folder + arrow) */
+    .doc-actions .action-btn[data-action="move"] svg { width: 26px; height: 26px; stroke-width: 1.8; }
+
     /* Camera & preview */
-    #camera-screen main { padding: 0; background: #000; padding-bottom: 120px; }
+    #camera-screen main { padding: 0; background: #000; padding-bottom: calc(var(--footer-h) - 8px); }
     #camera-feed { width: 100%; flex: 1; object-fit: cover; background: #000; }
     .camera-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); width: 80px; height: 80px; border-radius: 50%; background: var(--primary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 50; padding: 0; }
-    .camera-btn:active { transform: translateX(-50%) scale(0.9); }
     .camera-btn svg { width: 40px; height: 40px; stroke: white; fill: none; stroke-width: 1.5; }
     #camera-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: white; text-align: center; z-index: 5; display: none; }
     .loading-spinner { width: 40px; height: 40px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px; }
@@ -120,28 +120,29 @@
     /* Filter/Enhance screen:
        toolbar overlay (top-right) and image-name (top-left) so filters are visible over the image */
     #filter-screen { position: relative; }
-    #filter-screen main { padding: 0; background: #000; display: flex; flex-direction: column; padding-bottom: 80px; position: relative; }
+    #filter-screen main { padding: 0; background: #000; display: flex; flex-direction: column; padding-bottom: calc(var(--footer-h)); position: relative; }
     #filter-image { flex: 1; width: 100%; height: 100%; object-fit: contain; background: #000; display: block; }
 
-    /* Make the rename field more obvious */
+    /* Make the rename field obvious and expanded left, no label text */
     .image-name {
       position: absolute;
       top: 12px;
       left: 12px;
       z-index: 60;
-      background: rgba(0,0,0,0.55);
-      padding: 8px 10px;
+      background: rgba(0,0,0,0.45);
+      padding: 6px 10px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
       min-width: 160px;
+      max-width: calc(100% - 140px); /* leaves room for filter toolbar */
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
     }
-    .image-name label { color: #fff; font-size: 12px; font-weight: 600; opacity: 0.95; }
     .image-name input {
-      background: transparent; border: 1px solid rgba(255,255,255,0.12); outline: none; color: white; min-width: 140px; font-weight: 700; padding: 6px 8px; border-radius: 8px;
+      background: transparent; border: none; outline: none; color: white; font-weight: 700; padding: 6px 6px; width: 100%; font-size: 15px;
     }
-    .image-name input::placeholder { color: rgba(255,255,255,0.7); font-weight: 500; }
+    .image-name input::placeholder { color: rgba(255,255,255,0.75); font-weight: 600; }
 
     /* Filter toolbar */
     .filter-toolbar {
@@ -158,32 +159,36 @@
       backdrop-filter: blur(6px);
     }
     .filter-toolbar .filter-btn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: white; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    .filter-toolbar .btn-primary { background: rgba(255,255,255,0.08); color: white; border-color: rgba(255,255,255,0.12); }
 
     /* Review screen:
-       thumbs are absolute and above footer so they're not covered */
+       thumbs are placed above footer and won't overlap the footer controls */
     #review-screen { position: relative; }
-    #review-screen main { padding: 0; background: #000; display: flex; flex-direction: column; padding-bottom: 120px; position: relative; }
+    #review-screen main { padding: 0; background: #000; display: flex; flex-direction: column; padding-bottom: calc(var(--footer-h)); position: relative; }
     .review-image { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; }
-    .review-image img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .review-image img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+
     .review-thumbs {
       position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 96px; /* moved up to sit above footer buttons and avoid overlap */
+      left: 12px;
+      right: 12px;
+      bottom: calc(var(--footer-h) + 12px); /* placed above footer controls */
       display: flex;
       gap: 8px;
-      padding: 12px 16px;
+      padding: 8px 12px;
       overflow-x: auto;
       justify-content: center;
       z-index: 70;
-      background: rgba(0,0,0,0.10);
+      background: rgba(0,0,0,0.08);
       border-radius: 12px;
-      max-width: calc(100% - 32px);
       margin: 0 auto;
+      max-width: calc(100% - 24px);
+      height: 92px;
+      align-items: center;
     }
-    .review-thumb { width: 60px; height: 80px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.2); overflow: hidden; flex-shrink: 0; cursor: pointer; }
-    .review-thumb.active { border-color: var(--primary); }
-    .review-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .review-thumb { width: 64px; height: 84px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.12); overflow: hidden; flex-shrink: 0; cursor: pointer; }
+    .review-thumb.active { border-color: var(--primary); box-shadow: 0 6px 18px rgba(0,102,255,0.12); }
+    .review-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
 
     /* Buttons & footer */
     .btn { padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-primary); font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; }
@@ -192,7 +197,7 @@
     .btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
     .btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; }
 
-    .footer { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; flex-shrink: 0; position: fixed; bottom: 0; left: 0; right: 0; }
+    .footer { padding: 12px 16px; border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; flex-shrink: 0; position: fixed; bottom: 0; left: 0; right: 0; height: var(--footer-h); align-items: center; z-index: 80; }
     .footer.full { justify-content: stretch; }
     .footer.full .btn { flex: 1; }
 
@@ -204,8 +209,8 @@
     /* small responsive tweak */
     @media (max-width: 420px) {
       .folders-grid { grid-template-columns: 1fr; }
-      .image-name { min-width: 120px; padding: 6px 8px; }
-      .review-thumbs { bottom: 84px; padding: 8px 12px; gap: 6px; }
+      .image-name { max-width: calc(100% - 96px); }
+      .review-thumbs { bottom: calc(var(--footer-h) + 8px); height: 80px; }
     }
   </style>
 </head>
@@ -226,10 +231,6 @@
 
       <symbol id="icon-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></symbol>
 
-      <symbol id="icon-parameters" viewBox="0 0 24 24">
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09c.66 0 1.23-.4 1.51-1a1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 0 1 6.5 2.5l.06.06c.5.5 1.07.73 1.82.33.5-.28 1.23-.28 1.82.33L11 4.5c.4.4.73.9.33 1.82-.28.66-.28 1.23 0 1.51V7a2 2 0 1 1 4 0v.09c.66 0 1.23.4 1.51 1 .4.9.9 1.4 1.82.33l.06-.06A2 2 0 0 1 21.5 8.5l-.06.06c-.5.5-.73 1.07-.33 1.82.28.5.28 1.23-.33 1.82L19.4 15z"/>
-      </symbol>
-
       <symbol id="icon-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></symbol>
 
       <symbol id="icon-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"></path></symbol>
@@ -240,11 +241,9 @@
 
       <symbol id="icon-pencil" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></symbol>
 
-      <!-- New symbol: folder with arrow for Move action -->
+      <!-- folder + arrow (move) -->
       <symbol id="icon-folder-move" viewBox="0 0 24 24">
-        <!-- folder -->
         <path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"></path>
-        <!-- arrow pointing right (overlay) -->
         <path d="M9 12h6"></path>
         <path d="M13 10l2 2-2 2"></path>
       </symbol>
@@ -280,7 +279,6 @@
           </div>
         </div>
 
-        <!-- ENHANCE icon replaced with spyglass -->
         <div class="onboard-step">
           <div class="onboard-icon">
             <svg><use href="#icon-spyglass"></use></svg>
@@ -319,7 +317,6 @@
     <section id="home-screen" class="screen active">
       <header>
         <h1>PaperClear</h1>
-        <!-- Replaced icon with clear text button per request -->
         <button class="settings-text-btn" id="settings-btn" aria-label="Settings">Settings</button>
       </header>
       <main>
@@ -348,7 +345,6 @@
         </button>
         <h1 id="folder-title" style="flex:1; text-align:center;">Folder</h1>
 
-        <!-- New header action buttons: rename (pencil) + delete (red) -->
         <div style="display:flex; gap:8px;">
           <button class="header-btn" id="folder-rename" title="Rename folder" aria-label="Rename folder">
             <svg><use href="#icon-pencil"></use></svg>
@@ -417,15 +413,14 @@
         <button class="header-btn" id="filter-back">
           <svg><use href="#icon-back"></use></svg>
         </button>
-        <h1>Enhance</h1>
+        <!-- title removed to make the name field align and expand left -->
         <button class="header-btn" style="visibility: hidden;"></button>
       </header>
       <main>
         <img id="filter-image" alt="preview" />
 
-        <!-- Image name input (top-left overlay) - made more obvious -->
+        <!-- Image name input (top-left overlay) - no label text, expanded to left -->
         <div class="image-name" title="Click to rename page">
-          <label for="image-name-input">Title</label>
           <input id="image-name-input" placeholder="Page title — click to rename" />
         </div>
 
@@ -434,7 +429,6 @@
           <button class="filter-btn btn-primary" data-filter="clean" title="Clean">Clean</button>
           <button class="filter-btn" data-filter="bw" title="Black & White">B&W</button>
           <button class="filter-btn" data-filter="contrast" title="Sharp">Sharp</button>
-          <!-- extra helper icons (rotate, undo could be added later) -->
         </div>
 
       </main>
@@ -457,7 +451,7 @@
           <img id="review-image" alt="review" />
         </div>
 
-        <!-- thumbnails moved up so not covered by footer -->
+        <!-- thumbnails placed above footer controls so they don't overlap Delete/Save -->
         <div class="review-thumbs" id="review-thumbs"></div>
       </main>
       <div class="footer full">
@@ -536,7 +530,7 @@
       document.getElementById(id).classList.add("active");
     };
 
-    /* Render folders (removed the 3-dots menu as requested) */
+    /* Render folders (compact 2-column grid) */
     const renderFolders = () => {
       const grid = document.getElementById("folders");
       grid.innerHTML = "";
@@ -563,8 +557,7 @@
       show("folder-screen");
     };
 
-    /* Render docs inside a folder.
-       New behavior: actions hidden by default, shown on long-press (or via clicking the action buttons if visible). */
+    /* Render docs in a folder */
     const renderDocs = (id) => {
       const list = document.getElementById("docs");
       const empty = document.getElementById("folder-empty");
@@ -592,7 +585,7 @@
           </div>
         `;
 
-        /* local vars for long-press logic */
+        /* long-press logic */
         let longPressTimer = null;
         let longPressed = false;
 
@@ -600,13 +593,16 @@
           hideAllActions();
           card.classList.add("show-actions");
           longPressed = true;
+          // auto-select the card when showing actions
+          card.classList.add("selected");
+          const chk = card.querySelector(".doc-checkbox");
+          if (chk) chk.textContent = "✓";
         };
         const hideActions = () => {
           card.classList.remove("show-actions");
           longPressed = false;
         };
 
-        /* start long-press timer (both mouse and touch) */
         const startPress = (e) => {
           e.preventDefault && e.preventDefault();
           longPressTimer = setTimeout(() => {
@@ -615,14 +611,12 @@
         };
         const cancelPress = (e) => {
           if (longPressTimer) clearTimeout(longPressTimer);
-          // if the long-press already activated, prevent normal click toggling
           setTimeout(() => { longPressTimer = null; }, 0);
         };
 
-        /* short click toggles selection unless long-press activated */
         card.addEventListener("click", (ev) => {
           if (card.classList.contains("show-actions")) {
-            // if actions are visible, don't toggle selection here (let user use action buttons)
+            // don't toggle when actions are visible; let action buttons handle it
             return;
           }
           // normal select toggle
@@ -630,12 +624,11 @@
           card.querySelector(".doc-checkbox").textContent = card.classList.contains("selected") ? "✓" : "";
         });
 
-        /* pointer events for long press (covers mouse and touch) */
         card.addEventListener("pointerdown", startPress);
         card.addEventListener("pointerup", (e) => { cancelPress(e); });
         card.addEventListener("pointerleave", (e) => { cancelPress(e); });
 
-        /* Action buttons */
+        /* Action handlers */
         card.querySelectorAll(".action-btn").forEach(btn => {
           btn.addEventListener("click", (ev) => {
             ev.stopPropagation();
@@ -648,7 +641,6 @@
               const newName = prompt("New name:", d.name);
               if (newName?.trim()) { d.name = newName; save(); renderDocs(id); }
             } else if (action === "move") {
-              // present folder names as simple prompt, user can type the folder name
               const names = state.folders.map(f => f.name).join(", ");
               const target = prompt(`Move to folder?\n\n${names}`);
               if (target) {
@@ -664,7 +656,7 @@
         list.appendChild(card);
       });
 
-      /* clicking outside any .doc-card hides all action strips */
+      /* hide actions when clicking outside a doc-card */
       document.addEventListener("click", (e) => {
         if (!e.target.closest(".doc-card")) hideAllActions();
       });
@@ -690,7 +682,7 @@
       show("document-screen");
     };
 
-    /* Camera / capture */
+    /* Camera */
     const startCamera = async () => {
       try {
         document.getElementById("camera-loading").style.display = "block";
@@ -699,7 +691,7 @@
         document.getElementById("camera-loading").style.display = "none";
       } catch (e) {
         document.getElementById("camera-loading").style.display = "none";
-        alert("Camera error: " + e.name);
+        alert("Camera error: " + (e?.name || e?.message || e));
         show("home-screen");
       }
     };
@@ -717,7 +709,7 @@
       state.capture = canvas.toDataURL("image/jpeg", 0.85);
     };
 
-    /* Filters (same algorithm) */
+    /* Filters */
     const applyFilter = (type) => {
       if (!state.capture) return;
       const img = new Image();
@@ -743,7 +735,7 @@
       img.src = state.capture;
     };
 
-    /* Review rendering (thumbnails moved up in CSS) */
+    /* Review rendering */
     const renderReview = () => {
       const container = document.getElementById("review-thumbs");
       container.innerHTML = "";
@@ -764,7 +756,6 @@
       const folder = state.folderNow || state.folders[0].id;
       const now = Date.now();
       const date = new Date(now).toISOString().slice(0, 10);
-      // allow naming from image-name input when single page doc
       const nameInput = document.getElementById("image-name-input");
       const name = nameInput?.value?.trim() || ("Scan - " + date);
       const id = "doc_" + now;
@@ -795,7 +786,7 @@
       } catch (e) {
         btn.disabled = false;
         btn.textContent = "Export PDF";
-        alert("Failed: " + e.message);
+        alert("Failed: " + (e?.message || e));
       }
     };
 
@@ -821,9 +812,7 @@
     document.getElementById("capture-btn").onclick = () => { capture(); stopCamera(); show("preview-screen"); };
 
     document.getElementById("preview-next").onclick = () => {
-      // keep the image name entered (if any)
       document.getElementById("filter-image").src = state.capture;
-      // pre-fill image-name input if empty
       const nameInput = document.getElementById("image-name-input");
       if (nameInput && !nameInput.value) {
         const date = new Date().toISOString().slice(0,10);
@@ -834,18 +823,11 @@
 
     document.getElementById("preview-back").onclick = () => { show("camera-screen"); startCamera(); };
 
-    /* Filters: the filter toolbar buttons have class .filter-btn, reuse existing handler */
     document.querySelectorAll(".filter-btn").forEach(b => { b.onclick = () => applyFilter(b.getAttribute("data-filter")); });
 
     document.getElementById("filter-back").onclick = () => { show("preview-screen"); };
 
     document.getElementById("filter-review").onclick = () => {
-      // use the image-name input to rename the captured page if provided
-      const nameInput = document.getElementById("image-name-input");
-      if (nameInput?.value?.trim()) {
-        // attach name to a temporary pages list? We'll keep the doc-level naming on save.
-        // Keep capture as is.
-      }
       state.pages.push(state.capture);
       state.pageIdx = state.pages.length - 1;
       renderReview();
@@ -878,7 +860,6 @@
       openFolder(state.folderNow);
     };
 
-    // settings button opens settings (text button)
     document.getElementById("settings-btn").onclick = () => show("settings-screen");
     document.getElementById("help-btn").onclick = () => { document.getElementById("onboarding").classList.add("active"); };
     document.getElementById("about-btn").onclick = () => { alert("PaperClear v1.0\n\nOffline document scanner\n\nNo cloud • No accounts • No tracking"); };
@@ -892,7 +873,7 @@
       localStorage.setItem(ONBOARD, "1");
     };
 
-    /* Search: shows matching docs as folders (same behavior as before) */
+    /* Search */
     document.getElementById("search").oninput = (e) => {
       const q = e.target.value.toLowerCase();
       if (!q) { renderFolders(); return; }
@@ -913,7 +894,7 @@
       });
     };
 
-    /* Folder rename/delete handlers in header (when inside a folder) */
+    /* Folder rename/delete */
     document.getElementById("folder-rename").addEventListener("click", () => {
       const id = state.folderNow;
       if (!id) return;
