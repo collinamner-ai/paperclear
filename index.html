@@ -146,14 +146,6 @@
     main { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
     #home-screen main { padding-bottom: 140px; }
 
-    .search-box {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 13px;
-    }
-
     .folders-header {
       display: flex;
       justify-content: space-between;
@@ -603,7 +595,6 @@
         <button class="btn" id="settings-btn" style="margin: 0; border-radius: 20px; padding: 8px 16px;">Settings</button>
       </header>
       <main>
-        <input type="search" class="search-box" id="search" placeholder="Search...">
         <div class="folders-header">
           <h3>Folders</h3>
           <div class="sort-buttons">
@@ -756,8 +747,6 @@
         <button class="big-scan-btn" id="folder-scan"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
         <span class="scan-text">Capture</span>
       </div>
-      <button class="big-scan-btn" id="folder-import" title="Add from Photos" style="position: fixed; bottom: 105px; right: 20px; background: rgba(0,102,255,0.7); width: 50px; height: 50px; font-size: 20px;"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
-      <input type="file" id="import-file-input" accept="image/*" multiple style="display: none;">
     </section>
 
     <div id="image-preview-modal">
@@ -805,7 +794,7 @@
 
   <script>
 const STORAGE="purescan_v1",ONBOARD_PREF="purescan_onboard_dontshow",DEFAULT_FOLDER_PREF="purescan_default_folder",REMEMBER_FOLDER_PREF="purescan_remember_folder";
-let state={folders:[],docs:{},pages:[],capture:null,pageIdx:0,selectedFolder:null,sortBy:"recent",docNow:null,currentFolder:null,previewDocId:null,previewPageIdx:0},camera=null,isFirstLaunchGuide=true,contextTarget=null,moveTarget=null,isCropping=false,cropData=null,touchStartX=0,touchStartY=0;
+let state={folders:[],docs:{},pages:[],capture:null,pageIdx:0,selectedFolder:null,sortBy:"recent",currentFolder:null,previewDocId:null,previewPageIdx:0},camera=null,isFirstLaunchGuide=true,contextTarget=null,moveTarget=null,isCropping=false,cropData=null;
 
 const load=()=>{const data=localStorage.getItem(STORAGE);if(data)state=JSON.parse(data);if(!state.folders?.length)state.folders=[{id:"tax",name:"Tax",created:Date.now()},{id:"medical",name:"Medical",created:Date.now()},{id:"receipts",name:"Receipts",created:Date.now()},{id:"legal",name:"Legal",created:Date.now()},{id:"other",name:"Other",created:Date.now()}];if(!state.docs)state.docs={};};
 const save=()=>localStorage.setItem(STORAGE,JSON.stringify(state));
@@ -818,8 +807,8 @@ const renderFolderPickerList=()=>{const list=document.getElementById("folder-pic
 const renderFolders=()=>{const grid=document.getElementById("folders");grid.innerHTML="";const sorted=[...state.folders].sort((a,b)=>state.sortBy==="name"?a.name.localeCompare(b.name):b.created-a.created);sorted.forEach(f=>{const count=Object.values(state.docs).filter(d=>d.folder===f.id).length;const div=document.createElement("div");div.className="folder";div.innerHTML=`<div class="folder-icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><div class="folder-name">${f.name}</div><div class="folder-count">${count}</div>`;div.onclick=()=>openFolder(f.id);grid.appendChild(div);});};
 const refreshFolderCount=()=>{renderFolders();};
 const openFolder=(id)=>{const folder=state.folders.find(f=>f.id===id);if(!folder)return;state.currentFolder=id;document.getElementById("folder-title").textContent=folder.name;renderDocs(id);show("folder-screen");};
-const renderDocs=(id)=>{const docs=Object.values(state.docs).filter(d=>d.folder===id).sort((a,b)=>b.created-a.created);const list=document.getElementById("folder-docs");list.innerHTML="";const grid=document.createElement("div");grid.className="docs-grid";docs.forEach(d=>{const card=document.createElement("div");card.className="doc-card";card.innerHTML=`<div class="doc-thumb"><img src="${d.pages?.[0]||''}"/></div><div class="doc-info"><div class="doc-name">${d.name}</div><div class="doc-meta">${d.pages?.length||0} page${d.pages?.length!==1?"s":""}</div></div>`;card.onclick=(e)=>{if(e.target.closest(".doc-thumb")){e.preventDefault();e.stopPropagation();openImagePreview(d.id,0);}else{openDoc(d.id);}};const thumb=card.querySelector(".doc-thumb img");thumb.onclick=(e)=>{e.preventDefault();e.stopPropagation();openImagePreview(d.id,0);};card.oncontextmenu=(e)=>{e.preventDefault();showContextMenu(e,d.id,card);};card.ontouchstart=(e)=>{card.touchStartTime=Date.now();touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;};card.ontouchend=(e)=>{if(Date.now()-card.touchStartTime>500){showContextMenu(e,d.id,card);}};grid.appendChild(card);});list.appendChild(grid);};
-const openDoc=(id)=>{const d=state.docs[id];if(!d)return;state.docNow=id;document.getElementById("document-title").textContent=d.name;const grid=document.getElementById("pages");grid.innerHTML="";(d.pages||[]).forEach((p,i)=>{const thumb=document.createElement("div");thumb.style.cssText="aspect-ratio:3/4;border-radius:8px;border:1px solid #e4e8ec;overflow:hidden;background:#f8f9fb;cursor:pointer;";thumb.innerHTML=`<img src="${p}" style="width:100%;height:100%;object-fit:cover;"/>`;thumb.onclick=()=>openImagePreview(id,i);grid.appendChild(thumb);});show("document-screen");};
+const renderDocs=(id)=>{const docs=Object.values(state.docs).filter(d=>d.folder===id).sort((a,b)=>b.created-a.created);const list=document.getElementById("folder-docs");list.innerHTML="";const grid=document.createElement("div");grid.className="docs-grid";docs.forEach(d=>{const card=document.createElement("div");card.className="doc-card";card.innerHTML=`<div class="doc-thumb"><img src="${d.pages?.[0]||''}"/></div><div class="doc-info"><div class="doc-name">${d.name}</div><div class="doc-meta">${d.pages?.length||0} page${d.pages?.length!==1?"s":""}</div></div>`;card.onclick=(e)=>{if(e.target.closest(".doc-thumb")){e.preventDefault();e.stopPropagation();openImagePreview(d.id,0);}else{openDoc(d.id);}};const thumb=card.querySelector(".doc-thumb img");thumb.onclick=(e)=>{e.preventDefault();e.stopPropagation();openImagePreview(d.id,0);};card.oncontextmenu=(e)=>{e.preventDefault();showContextMenu(e,d.id,card);};card.ontouchstart=(e)=>{card.touchStartTime=Date.now();};card.ontouchend=(e)=>{if(Date.now()-card.touchStartTime>500){showContextMenu(e,d.id,card);}};grid.appendChild(card);});list.appendChild(grid);};
+const openDoc=(id)=>{const d=state.docs[id];if(!d)return;document.getElementById("document-title").textContent=d.name;const grid=document.getElementById("pages");grid.innerHTML="";(d.pages||[]).forEach((p,i)=>{const thumb=document.createElement("div");thumb.style.cssText="aspect-ratio:3/4;border-radius:8px;border:1px solid #e4e8ec;overflow:hidden;background:#f8f9fb;cursor:pointer;";thumb.innerHTML=`<img src="${p}" style="width:100%;height:100%;object-fit:cover;"/>`;thumb.onclick=()=>openImagePreview(id,i);grid.appendChild(thumb);});show("document-screen");};
 const showContextMenu=(e,docId,cardElement)=>{contextTarget=docId;const menu=document.getElementById("context-menu");menu.classList.add("active");const rect=cardElement.getBoundingClientRect();const top=rect.bottom+8;const left=rect.left+rect.width/2-80;menu.style.top=top+"px";menu.style.left=Math.max(8,Math.min(window.innerWidth-168,left))+"px";};
 const hideContextMenu=()=>{document.getElementById("context-menu").classList.remove("active");contextTarget=null;};
 const startCamera=async()=>{try{document.getElementById("camera-loading").style.display="block";camera=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});document.getElementById("camera-feed").srcObject=camera;document.getElementById("camera-loading").style.display="none";const video=document.getElementById("camera-feed");video.addEventListener("touchend",(e)=>{const rect=video.getBoundingClientRect();const x=e.changedTouches[0].clientX-rect.left;const y=e.changedTouches[0].clientY-rect.top;const xPercent=(x/rect.width)*100;const yPercent=(y/rect.height)*100;showFocusIndicator(xPercent,yPercent);},{passive:true});}catch(e){document.getElementById("camera-loading").style.display="none";alert("Camera error: "+(e?.name||"Unknown"));show("home-screen");}};
@@ -835,9 +824,6 @@ const applyFilterBtn=(type)=>{if(!state.capture)return;applyFilter(type);activat
 const renderReview=()=>{const container=document.getElementById("review-thumbs");container.innerHTML="";(state.pages||[]).forEach((p,i)=>{const th=document.createElement("div");th.className="review-thumb"+(i===state.pageIdx?" active":"");th.innerHTML=`<img src="${p}"/><div class="review-counter">${i+1}/${state.pages.length}</div>`;th.onclick=()=>{state.pageIdx=i;renderReview();document.getElementById("review-image").src=state.pages[i];};container.appendChild(th);});document.getElementById("review-image").src=state.pages[state.pageIdx];document.getElementById("review-title").textContent=`Review (${state.pageIdx+1}/${state.pages.length})`;setupReviewSwipe();};
 const setupReviewSwipe=()=>{const container=document.getElementById("review-image-container");let startX=0;container.addEventListener("touchstart",(e)=>{startX=e.touches[0].clientX;},(false));container.addEventListener("touchend",(e)=>{const endX=e.changedTouches[0].clientX;const diff=startX-endX;if(Math.abs(diff)>50){if(diff>0&&state.pageIdx<state.pages.length-1){state.pageIdx++;renderReview();}else if(diff<0&&state.pageIdx>0){state.pageIdx--;renderReview();}}},{passive:true});};
 const saveDoc=()=>{if(!state.pages?.length||!state.selectedFolder){alert("Please select a folder");return;}const folder=state.selectedFolder,now=Date.now(),date=new Date(now).toISOString().slice(0,10),name=prompt("Document name:",`Scan - ${date}`)||`Scan - ${date}`,id="doc_"+now;state.docs[id]={id,name,folder,pages:[...state.pages],created:now};if(document.getElementById("folder-remember").checked){localStorage.setItem(DEFAULT_FOLDER_PREF,folder);localStorage.setItem(REMEMBER_FOLDER_PREF,"1");}state.pages=[];state.pageIdx=0;state.capture=null;save();refreshFolderCount();openFolder(folder);};
-const exportPDF=async(docId)=>{const d=state.docs[docId];if(!d)return;try{const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:"pt",format:"a4"});(d.pages||[]).forEach((p,i)=>{if(i)pdf.addPage();const w=pdf.internal.pageSize.getWidth(),h=pdf.internal.pageSize.getHeight();pdf.addImage(p,"JPEG",0,0,w,h);});pdf.save(d.name+".pdf");}catch(e){alert("Failed: "+(e?.message||e));}};
-const importImagesFromGallery=()=>{document.getElementById("import-file-input").click();};
-const handleImportedFiles=(files)=>{if(!files||files.length===0)return;const imported=[];let loaded=0;Array.from(files).forEach((file)=>{const reader=new FileReader();reader.onload=(e)=>{imported.push(e.target.result);loaded++;if(loaded===files.length){state.pages=imported;state.pageIdx=0;renderReview();show("review-screen");}};reader.readAsDataURL(file);});};
 const openImagePreview=(docId,pageIdx)=>{const d=state.docs[docId];if(!d||!d.pages)return;state.previewDocId=docId;state.previewPageIdx=pageIdx;updateImagePreview();document.getElementById("image-preview-modal").classList.add("active");};
 const updateImagePreview=()=>{const d=state.docs[state.previewDocId];if(!d)return;document.getElementById("preview-img").src=d.pages[state.previewPageIdx];document.getElementById("preview-filename").textContent=`${d.name} - Page ${state.previewPageIdx+1}/${d.pages.length}`;};
 
@@ -878,8 +864,6 @@ document.getElementById("onboard-settings-back").onclick=closeOnboarding;
 document.getElementById("settings-back").onclick=()=>show("home-screen");
 document.getElementById("folder-back").onclick=()=>show("home-screen");
 document.getElementById("folder-scan").onclick=()=>{state.pages=[];state.pageIdx=0;state.capture=null;state.selectedFolder=state.currentFolder;show("camera-screen");startCamera();};
-document.getElementById("folder-import").onclick=importImagesFromGallery;
-document.getElementById("import-file-input").onchange=(e)=>{state.selectedFolder=state.currentFolder;handleImportedFiles(e.target.files);e.target.value="";};
 document.getElementById("document-back").onclick=()=>show("folder-screen");
 document.getElementById("preview-modal-close").onclick=()=>{document.getElementById("image-preview-modal").classList.remove("active");};
 document.getElementById("preview-prev").onclick=()=>{if(state.previewPageIdx>0){state.previewPageIdx--;updateImagePreview();}};
