@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PaperClear</title>
+  <title>PureScan</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
@@ -145,14 +145,6 @@
     .screen.active { display: flex; }
     main { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
     #home-screen main { padding-bottom: 140px; }
-
-    .search-box {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 13px;
-    }
 
     .folders-header {
       display: flex;
@@ -408,34 +400,8 @@
     .crop-handle.sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
     .crop-handle.se { bottom: -6px; right: -6px; cursor: nwse-resize; }
 
-    /* Crop Overlay */
-    #crop-overlay {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 100;
-    }
-    .crop-box {
-      position: absolute;
-      border: 2px dashed white;
-      box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.5);
-      cursor: move;
-    }
-    .crop-handle {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background: white;
-      border: 1px solid var(--primary);
-      border-radius: 2px;
-    }
-
     #review-screen main { padding: 0; background: #000; display: flex; flex-direction: column; }
-    .review-image { flex: 1; display: flex; align-items: center; justify-content: center; }
+    .review-image { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .review-image img { max-width: 100%; max-height: 100%; object-fit: contain; }
     .review-thumbs { background: rgba(0,0,0,0.8); padding: 12px 16px; overflow-x: auto; display: flex; gap: 8px; height: 120px; align-items: center; }
     .review-thumb { width: 80px; height: 100px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.2); flex-shrink: 0; cursor: pointer; overflow: hidden; position: relative; }
@@ -486,7 +452,7 @@
     #preview-screen main { padding: 0; background: #000; display: flex; align-items: center; justify-content: center; }
     #preview-canvas { width: 100%; max-height: 100%; object-fit: contain; background: #000; }
 
-    /* Folder Screen - Improved Layout */
+    /* Folder Screen */
     #folder-screen {
       flex: 1;
       flex-direction: column;
@@ -525,7 +491,7 @@
     .doc-card:active { transform: scale(0.98); }
     .doc-card.held { box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
     .doc-thumb { width: 100px; aspect-ratio: auto; flex-shrink: 0; background: var(--bg); overflow: hidden; }
-    .doc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .doc-thumb img { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
     .doc-info { padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; flex: 1; }
     .doc-name { font-size: 14px; font-weight: 600; margin: 0; word-break: break-word; }
     .doc-meta { font-size: 12px; color: var(--text-secondary); margin: 4px 0 0; }
@@ -539,7 +505,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.95);
+      background: rgb(0,0,0);
       z-index: 9999;
       align-items: center;
       justify-content: center;
@@ -554,16 +520,46 @@
     .preview-nav button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; }
     .preview-nav button:hover { background: var(--primary); border-color: var(--primary); }
 
-    /* Ensure folder screen is hidden by default */
     #folder-screen { display: none !important; }
     #folder-screen.active { display: flex !important; }
+
+    /* Accordion Styles */
+    .accordion-item {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .accordion-header {
+      background: var(--surface);
+      padding: 12px 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+      border: none;
+      width: 100%;
+      text-align: left;
+      transition: background 0.2s;
+    }
+    .accordion-header:hover { background: var(--bg); }
+    .accordion-header.active { background: #f0f5ff; }
+    .accordion-content {
+      display: none;
+      padding: 16px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+    .accordion-content.active { display: block; }
+    .accordion-content p { margin: 0 0 8px 0; font-size: 13px; line-height: 1.6; }
   </style>
 </head>
 <body>
   <div class="app">
     <div id="splash">
       <div class="splash-logo"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <h1 class="splash-title">PaperClear</h1>
+      <h1 class="splash-title">PureScan</h1>
       <p class="splash-subtitle">Scan documents offline, locally, privately</p>
     </div>
 
@@ -595,11 +591,10 @@
 
     <section id="home-screen" class="screen active">
       <header>
-        <h1>PaperClear</h1>
+        <h1>PureScan</h1>
         <button class="btn" id="settings-btn" style="margin: 0; border-radius: 20px; padding: 8px 16px;">Settings</button>
       </header>
       <main>
-        <input type="search" class="search-box" id="search" placeholder="Search...">
         <div class="folders-header">
           <h3>Folders</h3>
           <div class="sort-buttons">
@@ -731,7 +726,7 @@
         <button class="header-btn" style="visibility: hidden;"></button>
       </header>
       <main>
-        <div class="review-image"><img id="review-image" alt="review"></div>
+        <div class="review-image" id="review-image-container"><img id="review-image" alt="review"></div>
         <div class="review-thumbs" id="review-thumbs"></div>
       </main>
       <div class="footer full">
@@ -749,8 +744,8 @@
       </header>
       <main id="folder-docs"></main>
       <div class="scan-hero">
-        <button class="big-scan-btn" id="folder-scan"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-        <span class="scan-text">+ Add File</span>
+        <button class="big-scan-btn" id="folder-scan"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
+        <span class="scan-text">Capture</span>
       </div>
     </section>
 
@@ -783,15 +778,23 @@
       </header>
       <main>
         <button class="btn" style="width: 100%; justify-content: space-between;" id="help-btn"><span>Help</span><span>›</span></button>
-        <button class="btn" style="width: 100%; justify-content: space-between;" id="about-btn"><span>About</span><span>›</span></button>
+        <div class="accordion-item">
+          <button class="accordion-header" id="about-btn"><span>About</span><span id="about-toggle">›</span></button>
+          <div class="accordion-content" id="about-content">
+            <p><strong>PureScan</strong></p>
+            <p>Version 1.0 SPK0.0</p>
+            <p>Offline document scanner</p>
+            <p style="margin-top: 16px; color: var(--text-secondary); font-size: 12px;">© 2026 PureScan. All rights reserved.</p>
+          </div>
+        </div>
         <div style="margin-top: 24px; padding: 16px; background: #f0f5ff; border-radius: 8px; color: var(--text-secondary); font-size: 13px;"><strong>100% Private:</strong> Files stay on device.</div>
       </main>
     </section>
   </div>
 
   <script>
-const STORAGE="paperclear_v5",ONBOARD_PREF="paperclear_onboard_dontshow",DEFAULT_FOLDER_PREF="paperclear_default_folder",REMEMBER_FOLDER_PREF="paperclear_remember_folder";
-let state={folders:[],docs:{},pages:[],capture:null,pageIdx:0,selectedFolder:null,sortBy:"recent",docNow:null,currentFolder:null,previewDocId:null,previewPageIdx:0},camera=null,isFirstLaunchGuide=true,contextTarget=null,moveTarget=null,isCropping=false,cropData=null;
+const STORAGE="purescan_v1",ONBOARD_PREF="purescan_onboard_dontshow",DEFAULT_FOLDER_PREF="purescan_default_folder",REMEMBER_FOLDER_PREF="purescan_remember_folder";
+let state={folders:[],docs:{},pages:[],capture:null,pageIdx:0,selectedFolder:null,sortBy:"recent",currentFolder:null,previewDocId:null,previewPageIdx:0},camera=null,isFirstLaunchGuide=true,contextTarget=null,moveTarget=null,moveSelectedFolder=null,isCropping=false,cropData=null;
 
 const load=()=>{const data=localStorage.getItem(STORAGE);if(data)state=JSON.parse(data);if(!state.folders?.length)state.folders=[{id:"tax",name:"Tax",created:Date.now()},{id:"medical",name:"Medical",created:Date.now()},{id:"receipts",name:"Receipts",created:Date.now()},{id:"legal",name:"Legal",created:Date.now()},{id:"other",name:"Other",created:Date.now()}];if(!state.docs)state.docs={};};
 const save=()=>localStorage.setItem(STORAGE,JSON.stringify(state));
@@ -804,33 +807,35 @@ const renderFolderPickerList=()=>{const list=document.getElementById("folder-pic
 const renderFolders=()=>{const grid=document.getElementById("folders");grid.innerHTML="";const sorted=[...state.folders].sort((a,b)=>state.sortBy==="name"?a.name.localeCompare(b.name):b.created-a.created);sorted.forEach(f=>{const count=Object.values(state.docs).filter(d=>d.folder===f.id).length;const div=document.createElement("div");div.className="folder";div.innerHTML=`<div class="folder-icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div><div class="folder-name">${f.name}</div><div class="folder-count">${count}</div>`;div.onclick=()=>openFolder(f.id);grid.appendChild(div);});};
 const refreshFolderCount=()=>{renderFolders();};
 const openFolder=(id)=>{const folder=state.folders.find(f=>f.id===id);if(!folder)return;state.currentFolder=id;document.getElementById("folder-title").textContent=folder.name;renderDocs(id);show("folder-screen");};
-const renderDocs=(id)=>{const docs=Object.values(state.docs).filter(d=>d.folder===id).sort((a,b)=>b.created-a.created);const list=document.getElementById("folder-docs");list.innerHTML="";const grid=document.createElement("div");grid.className="docs-grid";docs.forEach(d=>{const card=document.createElement("div");card.className="doc-card";card.innerHTML=`<div class="doc-thumb"><img src="${d.pages?.[0]||''}"/></div><div class="doc-info"><div class="doc-name">${d.name}</div><div class="doc-meta">${d.pages?.length||0} page${d.pages?.length!==1?"s":""}</div></div>`;card.onclick=(e)=>{if(e.target.closest(".doc-thumb")){e.preventDefault();e.stopPropagation();openImagePreview(d.id,0);}else{openDoc(d.id);}};card.oncontextmenu=(e)=>{e.preventDefault();showContextMenu(e,d.id);};card.ontouchstart=()=>{card.touchStartTime=Date.now();};card.ontouchend=()=>{if(Date.now()-card.touchStartTime>500){showContextMenu(event,d.id);}};grid.appendChild(card);});list.appendChild(grid);};
-const openDoc=(id)=>{const d=state.docs[id];if(!d)return;state.docNow=id;document.getElementById("document-title").textContent=d.name;const grid=document.getElementById("pages");grid.innerHTML="";(d.pages||[]).forEach(p=>{const thumb=document.createElement("div");thumb.style.cssText="aspect-ratio:3/4;border-radius:8px;border:1px solid #e4e8ec;overflow:hidden;background:#f8f9fb;";thumb.innerHTML=`<img src="${p}" style="width:100%;height:100%;object-fit:cover;"/>`;grid.appendChild(thumb);});show("document-screen");};
-const showContextMenu=(e,docId)=>{contextTarget=docId;const menu=document.getElementById("context-menu");menu.classList.add("active");menu.style.top=(e.clientY||e.touches?.[0].clientY)+"px";menu.style.left=(e.clientX||e.touches?.[0].clientX)+"px";};
+const renderDocs=(id)=>{const docs=Object.values(state.docs).filter(d=>d.folder===id).sort((a,b)=>b.created-a.created);const list=document.getElementById("folder-docs");list.innerHTML="";const grid=document.createElement("div");grid.className="docs-grid";docs.forEach(d=>{const card=document.createElement("div");card.className="doc-card";card.innerHTML=`<div class="doc-thumb"><img src="${d.pages?.[0]||''}"/></div><div class="doc-info"><div class="doc-name">${d.name}</div><div class="doc-meta">${d.pages?.length||0} page${d.pages?.length!==1?"s":""}</div></div>`;card.onclick=(e)=>{if(e.target.closest(".doc-thumb")){e.preventDefault();e.stopPropagation();openImagePreview(d.id,0);}else{openDoc(d.id);}};const thumb=card.querySelector(".doc-thumb img");thumb.onclick=(e)=>{e.preventDefault();e.stopPropagation();openImagePreview(d.id,0);};card.oncontextmenu=(e)=>{e.preventDefault();showContextMenu(e,d.id,card);};card.ontouchstart=(e)=>{card.touchStartTime=Date.now();};card.ontouchend=(e)=>{if(Date.now()-card.touchStartTime>500){showContextMenu(e,d.id,card);}};grid.appendChild(card);});list.appendChild(grid);};
+const openDoc=(id)=>{const d=state.docs[id];if(!d)return;document.getElementById("document-title").textContent=d.name;const grid=document.getElementById("pages");grid.innerHTML="";(d.pages||[]).forEach((p,i)=>{const thumb=document.createElement("div");thumb.style.cssText="aspect-ratio:3/4;border-radius:8px;border:1px solid #e4e8ec;overflow:hidden;background:#f8f9fb;cursor:pointer;";thumb.innerHTML=`<img src="${p}" style="width:100%;height:100%;object-fit:cover;"/>`;thumb.onclick=()=>openImagePreview(id,i);grid.appendChild(thumb);});show("document-screen");};
+const showContextMenu=(e,docId,cardElement)=>{contextTarget=docId;const menu=document.getElementById("context-menu");menu.classList.add("active");const rect=cardElement.getBoundingClientRect();const top=rect.bottom+8;const left=rect.left+rect.width/2-80;menu.style.top=top+"px";menu.style.left=Math.max(8,Math.min(window.innerWidth-168,left))+"px";};
 const hideContextMenu=()=>{document.getElementById("context-menu").classList.remove("active");contextTarget=null;};
-const startCamera=async()=>{try{document.getElementById("camera-loading").style.display="block";camera=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});document.getElementById("camera-feed").srcObject=camera;document.getElementById("camera-loading").style.display="none";}catch(e){document.getElementById("camera-loading").style.display="none";alert("Camera error: "+(e?.name||"Unknown"));show("home-screen");}};
+const startCamera=async()=>{try{document.getElementById("camera-loading").style.display="block";camera=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});document.getElementById("camera-feed").srcObject=camera;document.getElementById("camera-loading").style.display="none";const video=document.getElementById("camera-feed");video.addEventListener("touchend",(e)=>{const rect=video.getBoundingClientRect();const x=e.changedTouches[0].clientX-rect.left;const y=e.changedTouches[0].clientY-rect.top;const xPercent=(x/rect.width)*100;const yPercent=(y/rect.height)*100;showFocusIndicator(xPercent,yPercent);},{passive:true});}catch(e){document.getElementById("camera-loading").style.display="none";alert("Camera error: "+(e?.name||"Unknown"));show("home-screen");}};
+const showFocusIndicator=(x,y)=>{let indicator=document.getElementById("focus-indicator");if(!indicator){indicator=document.createElement("div");indicator.id="focus-indicator";indicator.style.cssText="position:fixed;width:60px;height:60px;border:2px solid #0066ff;border-radius:50%;pointer-events:none;z-index:40;opacity:0;transition:opacity 0.3s;";document.body.appendChild(indicator);}const video=document.getElementById("camera-feed");const rect=video.getBoundingClientRect();indicator.style.left=(rect.left+rect.width*x/100-30)+"px";indicator.style.top=(rect.top+rect.height*y/100-30)+"px";indicator.style.opacity="1";setTimeout(()=>{indicator.style.opacity="0";},600);};
 const stopCamera=()=>{if(camera){camera.getTracks().forEach(t=>t.stop());camera=null;}};
-const capture=()=>{const video=document.getElementById("camera-feed"),canvas=document.getElementById("preview-canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext("2d").drawImage(video,0,0);state.capture=canvas.toDataURL("image/jpeg",0.85);};
+const autoEnhanceCapture=()=>{if(!state.capture)return;const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=img.width;c.height=img.height;const ctx=c.getContext("2d");ctx.drawImage(img,0,0);const pixels=ctx.getImageData(0,0,c.width,c.height);const data=pixels.data;for(let i=0;i<data.length;i+=4){const gray=(data[i]*0.299+data[i+1]*0.587+data[i+2]*0.114);const enhanced=Math.max(0,Math.min(255,gray<128?(gray*0.5):(100+(gray-128)*1.8)));data[i]=data[i+1]=data[i+2]=enhanced;}ctx.putImageData(pixels,0,0);state.capture=c.toDataURL("image/jpeg",0.85);};img.src=state.capture;};
+const capture=()=>{const video=document.getElementById("camera-feed"),canvas=document.getElementById("preview-canvas");canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext("2d").drawImage(video,0,0);state.capture=canvas.toDataURL("image/jpeg",0.85);autoEnhanceCapture();};
 const applyFilter=(type)=>{if(!state.capture)return;const img=new Image();img.onload=()=>{const c=document.createElement("canvas");c.width=img.width;c.height=img.height;const ctx=c.getContext("2d");ctx.drawImage(img,0,0);if(type==="clean"){/* Keep original */}else if(type==="bw"){const pixels=ctx.getImageData(0,0,c.width,c.height),data=pixels.data;for(let i=0;i<data.length;i+=4){const gray=(data[i]*0.299+data[i+1]*0.587+data[i+2]*0.114);const threshold=128;const bw=gray>threshold?255:0;data[i]=data[i+1]=data[i+2]=bw;}ctx.putImageData(pixels,0,0);}else if(type==="contrast"){const pixels=ctx.getImageData(0,0,c.width,c.height),data=pixels.data;for(let i=0;i<data.length;i+=4){const gray=(data[i]+data[i+1]+data[i+2])/3;const sharpen=Math.max(0,Math.min(255,gray<128?(gray*0.7):(128+(gray-128)*1.8)));data[i]=data[i+1]=data[i+2]=sharpen;}ctx.putImageData(pixels,0,0);}state.capture=c.toDataURL("image/jpeg",0.85);document.getElementById("filter-image").src=state.capture;};img.src=state.capture;};
 const activateFilterBtn=(type)=>{document.querySelectorAll(".filter-btn[data-filter]").forEach(b=>b.classList.remove("active"));document.querySelector(`.filter-btn[data-filter="${type}"]`)?.classList.add("active");};
 const initCrop=()=>{const img=new Image();img.onload=()=>{const canvas=document.getElementById("crop-canvas");canvas.width=img.width;canvas.height=img.height;const ctx=canvas.getContext("2d");ctx.drawImage(img,0,0);const box=document.getElementById("crop-box");const w=canvas.width*0.8;const h=canvas.height*0.8;const x=(canvas.width-w)/2;const y=(canvas.height-h)/2;box.style.left=x+"px";box.style.top=y+"px";box.style.width=w+"px";box.style.height=h+"px";cropData={x,y,w,h,imgW:img.width,imgH:img.height};setupCropHandles();};img.src=state.capture;};
 const setupCropHandles=()=>{const box=document.getElementById("crop-box");let dragging=null;box.addEventListener("mousedown",(e)=>{if(e.target.classList.contains("crop-handle")){dragging=e.target.className.split(" ")[1];}else{dragging="move";}});document.addEventListener("mousemove",(e)=>{if(!dragging||!cropData)return;const box=document.getElementById("crop-box");const rect=box.parentElement.getBoundingClientRect();const x=e.clientX-rect.left;const y=e.clientY-rect.top;if(dragging==="move"){box.style.left=(x-cropData.w/2)+"px";box.style.top=(y-cropData.h/2)+"px";}else if(dragging==="nw"){box.style.left=x+"px";box.style.top=y+"px";box.style.width=(cropData.w-(x-parseFloat(box.style.left)))+"px";box.style.height=(cropData.h-(y-parseFloat(box.style.top)))+"px";}else if(dragging==="se"){box.style.width=(x-parseFloat(box.style.left))+"px";box.style.height=(y-parseFloat(box.style.top))+"px";}});document.addEventListener("mouseup",()=>{dragging=null;});};
 const applyFilterBtn=(type)=>{if(!state.capture)return;applyFilter(type);activateFilterBtn(type);};
-const renderReview=()=>{const container=document.getElementById("review-thumbs");container.innerHTML="";(state.pages||[]).forEach((p,i)=>{const th=document.createElement("div");th.className="review-thumb"+(i===state.pageIdx?" active":"");th.innerHTML=`<img src="${p}"/><div class="review-counter">${i+1}/${state.pages.length}</div>`;th.onclick=()=>{state.pageIdx=i;renderReview();document.getElementById("review-image").src=state.pages[i];};container.appendChild(th);});document.getElementById("review-image").src=state.pages[state.pageIdx];document.getElementById("review-title").textContent=`Review (${state.pageIdx+1}/${state.pages.length})`;};
-const saveDoc=()=>{if(!state.pages?.length||!state.selectedFolder){alert("Please select a folder");return;}const folder=state.selectedFolder,now=Date.now(),date=new Date(now).toISOString().slice(0,10),name=prompt("Document name:",`Scan - ${date}`)||`Scan - ${date}`,id="doc_"+now;state.docs[id]={id,name,folder,pages:[...state.pages],created:now};if(document.getElementById("folder-remember").checked){localStorage.setItem(DEFAULT_FOLDER_PREF,folder);localStorage.setItem(REMEMBER_FOLDER_PREF,"1");}state.pages=[];state.pageIdx=0;state.capture=null;save();refreshFolderCount();show("home-screen");};
-const exportPDF=async(docId)=>{const d=state.docs[docId];if(!d)return;try{const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:"pt",format:"a4"});(d.pages||[]).forEach((p,i)=>{if(i)pdf.addPage();const w=pdf.internal.pageSize.getWidth(),h=pdf.internal.pageSize.getHeight();pdf.addImage(p,"JPEG",0,0,w,h);});pdf.save(d.name+".pdf");}catch(e){alert("Failed: "+(e?.message||e));}};
-
+const renderReview=()=>{const container=document.getElementById("review-thumbs");container.innerHTML="";(state.pages||[]).forEach((p,i)=>{const th=document.createElement("div");th.className="review-thumb"+(i===state.pageIdx?" active":"");th.innerHTML=`<img src="${p}"/><div class="review-counter">${i+1}/${state.pages.length}</div>`;th.onclick=()=>{state.pageIdx=i;renderReview();document.getElementById("review-image").src=state.pages[i];};container.appendChild(th);});document.getElementById("review-image").src=state.pages[state.pageIdx];document.getElementById("review-title").textContent=`Review (${state.pageIdx+1}/${state.pages.length})`;setupReviewSwipe();};
+const setupReviewSwipe=()=>{const container=document.getElementById("review-image-container");let startX=0;container.addEventListener("touchstart",(e)=>{startX=e.touches[0].clientX;},(false));container.addEventListener("touchend",(e)=>{const endX=e.changedTouches[0].clientX;const diff=startX-endX;if(Math.abs(diff)>50){if(diff>0&&state.pageIdx<state.pages.length-1){state.pageIdx++;renderReview();}else if(diff<0&&state.pageIdx>0){state.pageIdx--;renderReview();}}},{passive:true});};
+const saveDoc=()=>{if(!state.pages?.length||!state.selectedFolder){alert("Please select a folder");return;}const folder=state.selectedFolder,now=Date.now(),date=new Date(now).toISOString().slice(0,10),name=prompt("Document name:",`Scan - ${date}`)||`Scan - ${date}`,id="doc_"+now;state.docs[id]={id,name,folder,pages:[...state.pages],created:now};if(document.getElementById("folder-remember").checked){localStorage.setItem(DEFAULT_FOLDER_PREF,folder);localStorage.setItem(REMEMBER_FOLDER_PREF,"1");}state.pages=[];state.pageIdx=0;state.capture=null;save();refreshFolderCount();openFolder(folder);};
 const openImagePreview=(docId,pageIdx)=>{const d=state.docs[docId];if(!d||!d.pages)return;state.previewDocId=docId;state.previewPageIdx=pageIdx;updateImagePreview();document.getElementById("image-preview-modal").classList.add("active");};
-
 const updateImagePreview=()=>{const d=state.docs[state.previewDocId];if(!d)return;document.getElementById("preview-img").src=d.pages[state.previewPageIdx];document.getElementById("preview-filename").textContent=`${d.name} - Page ${state.previewPageIdx+1}/${d.pages.length}`;};
 
 document.getElementById("ctx-edit").onclick=()=>{if(!contextTarget)return;const d=state.docs[contextTarget];const newName=prompt("Rename document:",d.name);if(newName?.trim()){d.name=newName;save();renderDocs(state.currentFolder);}hideContextMenu();};
-document.getElementById("ctx-move").onclick=()=>{if(!contextTarget)return;moveTarget=contextTarget;const list=document.getElementById("move-folder-list");list.innerHTML="";state.folders.forEach(f=>{const div=document.createElement("div");div.className="modal-folder-item";div.innerHTML=`<svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>${f.name}</span>`;div.onclick=()=>{state.docs[moveTarget].folder=f.id;};list.appendChild(div);});document.getElementById("move-modal").classList.add("active");};
+const renderMoveFolderList=()=>{const list=document.getElementById("move-folder-list");list.innerHTML="";state.folders.forEach(f=>{const div=document.createElement("div");div.className="modal-folder-item"+(moveSelectedFolder===f.id?" selected":"");div.innerHTML=`<svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>${f.name}</span>`;div.onclick=()=>{moveSelectedFolder=f.id;renderMoveFolderList();};list.appendChild(div);});};
+
+document.getElementById("ctx-move").onclick=()=>{if(!contextTarget)return;moveTarget=contextTarget;const doc=state.docs[moveTarget];moveSelectedFolder=doc.folder;renderMoveFolderList();document.getElementById("move-modal").classList.add("active");};
 document.getElementById("ctx-export").onclick=()=>{if(!contextTarget)return;exportPDF(contextTarget);hideContextMenu();};
 document.getElementById("ctx-delete").onclick=()=>{if(!contextTarget)return;if(confirm("Delete this document?")){delete state.docs[contextTarget];save();renderDocs(state.currentFolder);refreshFolderCount();}hideContextMenu();};
-document.getElementById("move-modal-ok").onclick=()=>{save();renderDocs(state.currentFolder);refreshFolderCount();document.getElementById("move-modal").classList.remove("active");};
-document.getElementById("move-modal-close").onclick=()=>document.getElementById("move-modal").classList.remove("active");
-document.getElementById("move-modal-cancel").onclick=()=>document.getElementById("move-modal").classList.remove("active");
+document.getElementById("move-modal-ok").onclick=()=>{if(moveTarget&&moveSelectedFolder){state.docs[moveTarget].folder=moveSelectedFolder;save();renderDocs(state.currentFolder);refreshFolderCount();document.getElementById("move-modal").classList.remove("active");moveTarget=null;moveSelectedFolder=null;}};
+document.getElementById("move-modal-close").onclick=()=>{document.getElementById("move-modal").classList.remove("active");moveTarget=null;moveSelectedFolder=null;};
+document.getElementById("move-modal-cancel").onclick=()=>{document.getElementById("move-modal").classList.remove("active");moveTarget=null;moveSelectedFolder=null;};
 
 document.getElementById("add-folder-btn").onclick=()=>{const name=prompt("Folder name:");if(!name?.trim())return;const id=name.toLowerCase().replace(/\s+/g,"-")+"-"+Date.now();state.folders.push({id,name,created:Date.now()});save();renderFolders();};
 document.getElementById("folder-edit").onclick=()=>{const folder=state.folders.find(f=>f.id===state.currentFolder);if(!folder)return;const newName=prompt("Rename folder:",folder.name);if(newName?.trim()){folder.name=newName;save();document.getElementById("folder-title").textContent=newName;}};
@@ -847,20 +852,20 @@ document.getElementById("filter-back").onclick=()=>show("preview-screen");
 document.getElementById("crop-btn").onclick=()=>{isCropping=true;document.getElementById("crop-container").classList.add("active");document.getElementById("crop-btn").style.display="none";document.getElementById("confirm-crop").style.display="block";initCrop();};
 document.getElementById("confirm-crop").onclick=()=>{if(!cropData)return;const img=new Image();img.onload=()=>{const c=document.createElement("canvas");const box=document.getElementById("crop-box");const x=Math.max(0,parseFloat(box.style.left));const y=Math.max(0,parseFloat(box.style.top));const w=parseFloat(box.style.width);const h=parseFloat(box.style.height);c.width=w;c.height=h;const ctx=c.getContext("2d");const scale=img.width/document.getElementById("crop-canvas").width;ctx.drawImage(img,x*scale,y*scale,w*scale,h*scale,0,0,w,h);state.capture=c.toDataURL("image/jpeg",0.85);document.getElementById("filter-image").src=state.capture;document.getElementById("crop-container").classList.remove("active");document.getElementById("crop-btn").style.display="block";document.getElementById("confirm-crop").style.display="none";isCropping=false;};img.src=state.capture;};
 document.getElementById("filter-review").onclick=()=>{state.pages.push(state.capture);state.pageIdx=state.pages.length-1;renderReview();show("review-screen");};
-document.getElementById("review-back").onclick=()=>{state.pages.pop();state.pageIdx=state.pages.length-1;renderReview();show("camera-screen");startCamera();};
-document.getElementById("review-delete").onclick=()=>{if(state.pages.length<2){alert("Keep at least 1 page");return;}state.pages.splice(state.pageIdx,1);if(state.pageIdx>=state.pages.length)state.pageIdx--;renderReview();};
+document.getElementById("review-back").onclick=()=>{if(state.pages.length===1){state.pages.pop();state.pageIdx=0;state.capture=null;show("camera-screen");startCamera();}else{state.pages.pop();if(state.pageIdx>=state.pages.length)state.pageIdx--;renderReview();}};
+document.getElementById("review-delete").onclick=()=>{if(state.pages.length===1){state.pages.splice(state.pageIdx,1);state.pageIdx=0;state.capture=null;show("camera-screen");startCamera();}else{state.pages.splice(state.pageIdx,1);if(state.pageIdx>=state.pages.length)state.pageIdx--;renderReview();}};
 document.getElementById("review-add").onclick=()=>{show("camera-screen");startCamera();};
 document.getElementById("review-save").onclick=saveDoc;
 document.getElementById("camera-back").onclick=()=>{stopCamera();show("home-screen");};
 document.getElementById("settings-btn").onclick=()=>show("settings-screen");
 document.getElementById("help-btn").onclick=()=>{showOnboarding(true);};
-document.getElementById("about-btn").onclick=()=>{alert("PaperClear v2.0\n\nOffline document scanner");};
+document.getElementById("about-btn").onclick=()=>{const content=document.getElementById("about-content");const header=document.getElementById("about-btn");const toggle=document.getElementById("about-toggle");content.classList.toggle("active");header.classList.toggle("active");toggle.textContent=content.classList.contains("active")?"v":"›";};
 document.getElementById("onboard-start").onclick=closeOnboarding;
 document.getElementById("onboard-close").onclick=closeOnboarding;
 document.getElementById("onboard-settings-back").onclick=closeOnboarding;
 document.getElementById("settings-back").onclick=()=>show("home-screen");
 document.getElementById("folder-back").onclick=()=>show("home-screen");
-document.getElementById("folder-scan").onclick=()=>{state.pages=[];state.pageIdx=0;state.capture=null;show("camera-screen");startCamera();};
+document.getElementById("folder-scan").onclick=()=>{state.pages=[];state.pageIdx=0;state.capture=null;state.selectedFolder=state.currentFolder;show("camera-screen");startCamera();};
 document.getElementById("document-back").onclick=()=>show("folder-screen");
 document.getElementById("preview-modal-close").onclick=()=>{document.getElementById("image-preview-modal").classList.remove("active");};
 document.getElementById("preview-prev").onclick=()=>{if(state.previewPageIdx>0){state.previewPageIdx--;updateImagePreview();}};
